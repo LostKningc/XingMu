@@ -2,17 +2,24 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="xingmu-auth" />
-        <module name="xingmu-gateway" />
-        <module name="xingmu-payment" />
-        <module name="xingmu-ticket" />
         <module name="xingmu-common" />
-        <module name="xingmu-order" />
+        <module name="xingmu-user-service" />
+        <module name="xingmu-database-framework" />
+        <module name="xingmu-user-api" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="xingmu-auth" target="17" />
+      <module name="xingmu-framework" target="17" />
+      <module name="xingmu-gateway" target="17" />
+      <module name="xingmu-order" target="17" />
+      <module name="xingmu-payment" target="17" />
+      <module name="xingmu-ticket" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

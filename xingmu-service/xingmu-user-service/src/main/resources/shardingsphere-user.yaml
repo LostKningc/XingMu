@@ -1,0 +1,143 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    # 加上引号，防止特殊字符解析错误
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_user_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_user_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+
+rules:
+  - !SHARDING
+    tables:
+      # --- 1. 用户手机表 (字符串 Hash 分片) ---
+      x_user_mobile:
+        actualDataNodes: ds_${0..1}.x_user_mobile_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: mobile
+            shardingAlgorithmName: user_mobile_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: mobile
+            shardingAlgorithmName: user_mobile_table_inline
+
+      # --- 2. 用户邮箱表 (字符串 Hash 分片) ---
+      x_user_email:
+        actualDataNodes: ds_${0..1}.x_user_email_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: email
+            shardingAlgorithmName: user_email_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: email
+            shardingAlgorithmName: user_email_table_inline
+
+      # --- 3. 用户主表 (ID 数字分片) ---
+      x_user:
+        actualDataNodes: ds_${0..1}.x_user_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: user_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: user_table_inline
+
+      # --- 4. 购票用户表 (ID 数字分片) ---
+      x_ticket_user:
+        actualDataNodes: ds_${0..1}.x_ticket_user_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: ticket_user_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: ticket_user_table_inline
+
+    # --- 算法定义区域 (核心修改) ---
+    shardingAlgorithms:
+      # ID 分库算法: id % 2
+      user_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${id % 2}
+      # ID 分表算法: (id / 2) % 2
+      user_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_user_${(id.intdiv(2)) % 2}
+
+      # 购票表同理
+      ticket_user_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${user_id % 2}
+      ticket_user_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_ticket_user_${(user_id.intdiv(2)) % 2}
+
+      # 手机号分库算法: hash(mobile) % 2
+      user_mobile_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${Math.abs(mobile.hashCode()) % 2}
+      # 手机号分表算法: (hash(mobile) / 2) % 2
+      user_mobile_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_user_mobile_${(Math.abs(mobile.hashCode()).intdiv(2)) % 2}
+
+      # 邮箱同理
+      user_email_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${Math.abs(email.hashCode()) % 2}
+      user_email_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_user_email_${(Math.abs(email.hashCode()).intdiv(2)) % 2}
+
+  # --- 加密规则 (保持原样) ---
+  - !ENCRYPT
+    tables:
+      x_user:
+        columns:
+          mobile:
+            cipher:
+              name: mobile
+              encryptorName: user_encryption_algorithm
+          password:
+            cipher:
+              name: password
+              encryptorName: user_encryption_algorithm
+          id_number:
+            cipher:
+              name: id_number
+              encryptorName: user_encryption_algorithm
+      x_user_mobile:
+        columns:
+          mobile:
+            cipher:
+              name: mobile
+              encryptorName: user_encryption_algorithm
+    encryptors:
+      user_encryption_algorithm:
+        type: AES
+        props:
+          # AES 密钥通常需要 16 个字符 (128位)
+          aes-key-value: "1234567812345678"
+          digest-algorithm-name: "SHA-1"
+
+props:
+  sql-show: true
