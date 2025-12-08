@@ -1,0 +1,45 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# Logs
+*.log
+*.log.*
+logs/
+
+# Spring
+*.war
+*.ear
+*.iml
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.ipr
+out/
+
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.apt_generated/
+.buildpath
+.springBeans
+.factorypath
+.metadata/
+bin/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
