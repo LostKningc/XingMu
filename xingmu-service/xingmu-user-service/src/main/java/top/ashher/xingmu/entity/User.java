@@ -3,13 +3,16 @@ package top.ashher.xingmu.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import top.ashher.xingmu.database.entity.BaseEntity;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @TableName("x_user")
-public class User implements Serializable {
+public class User extends BaseEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

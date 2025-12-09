@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.ashher.xingmu.dto.UserRegisterDto;
 import top.ashher.xingmu.service.UserService;
 import top.ashher.xingmu.common.ApiResponse;
 import top.ashher.xingmu.dto.UserIdDto;
@@ -25,5 +26,11 @@ public class UserController {
     @PostMapping(value = "/get/id")
     public ApiResponse<UserVo> getById(@Valid @RequestBody UserIdDto userIdDto){
         return ApiResponse.ok(userService.getById(userIdDto));
+    }
+
+    @Operation(summary  = "注册")
+    @PostMapping(value = "/register")
+    public ApiResponse<Boolean> register(@Valid @RequestBody UserRegisterDto userRegisterDto){
+        return ApiResponse.ok(userService.register(userRegisterDto));
     }
 }

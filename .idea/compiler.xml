@@ -7,9 +7,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="xingmu-common" />
         <module name="xingmu-user-service" />
+        <module name="xingmu-id-generator-framework" />
         <module name="xingmu-database-framework" />
+        <module name="xingmu-redisson-framework" />
+        <module name="xingmu-redis-framework" />
+        <module name="xingmu-common" />
+        <module name="xingmu-service-initialize" />
         <module name="xingmu-user-api" />
       </profile>
     </annotationProcessing>

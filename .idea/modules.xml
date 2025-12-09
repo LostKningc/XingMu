@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Xingmu.iml" filepath="$PROJECT_DIR$/Xingmu.iml" />
-      <module fileurl="file://$PROJECT_DIR$/xingmu-api/xingmu-user-api/xingmu-user-api.iml" filepath="$PROJECT_DIR$/xingmu-api/xingmu-user-api/xingmu-user-api.iml" />
     </modules>
   </component>
 </project>
