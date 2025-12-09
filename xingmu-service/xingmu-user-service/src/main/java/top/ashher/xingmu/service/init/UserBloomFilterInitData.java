@@ -5,19 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import top.ashher.xingmu.redisson.bloom.handler.BloomFilterHandler;
-import top.ashher.xingmu.service.UserService;
+import top.ashher.xingmu.service.UserMobileService;
+import top.ashher.xingmu.initialize.base.AbstractApplicationCommandLineRunnerHandler;
 
 import java.util.List;
 
 @Component
-public class UserBloomFilterInitData extends AbstractApplicationPostConstructHandler {
+public class UserBloomFilterInitData extends AbstractApplicationCommandLineRunnerHandler {
 
     @Autowired
     private BloomFilterHandler bloomFilterHandler;
 
     @Autowired
-    private UserService userService;
-
+    private UserMobileService userMobileService;
 
     @Override
     public Integer executeOrder() {
@@ -26,11 +26,15 @@ public class UserBloomFilterInitData extends AbstractApplicationPostConstructHan
 
     @Override
     public void executeInit(final ConfigurableApplicationContext context) {
-        BusinessThreadPool.execute(() -> {
-            List<String> allMobile = userService.getAllMobile();
-            if (CollectionUtil.isNotEmpty(allMobile)) {
-                allMobile.forEach(mobile -> bloomFilterHandler.add(mobile));
-            }
-        });
+//        BusinessThreadPool.execute(() -> {
+//            List<String> allMobile = userService.getAllMobile();
+//            if (CollectionUtil.isNotEmpty(allMobile)) {
+//                allMobile.forEach(mobile -> bloomFilterHandler.add(mobile));
+//            }
+//        });
+        List<String> allMobile = userMobileService.getAllMobile();
+        if (CollectionUtil.isNotEmpty(allMobile)) {
+            allMobile.forEach(mobile -> bloomFilterHandler.add(mobile));
+        }
     }
 }

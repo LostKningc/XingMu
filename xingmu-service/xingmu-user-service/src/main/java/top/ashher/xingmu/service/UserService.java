@@ -36,7 +36,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     @Autowired
     private UserMobileMapper userMobileMapper;
     @Autowired
-    private CompositeContainer compositeContainer;
+    private CompositeContainer<UserRegisterDto> compositeContainer;
     @Autowired
     private UidGenerator uidGenerator;
     @Autowired

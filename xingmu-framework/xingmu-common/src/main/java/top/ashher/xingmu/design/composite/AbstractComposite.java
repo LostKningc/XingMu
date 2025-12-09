@@ -13,7 +13,7 @@ public abstract class AbstractComposite<T> {
     /**
      * 建议改为 private，通过 getter 获取，保护内部结构
      */
-    private final List<AbstractComposite<T>> children = new ArrayList<>();
+    protected final List<AbstractComposite<T>> children = new ArrayList<>();
 
     /**
      * 对外暴露的统一执行入口（模板方法）

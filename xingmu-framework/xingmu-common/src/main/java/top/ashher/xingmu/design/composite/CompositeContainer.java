@@ -25,7 +25,7 @@ public class CompositeContainer<T> implements SmartInitializingSingleton, Applic
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"}) // 【修改点2】这里必须压制警告，下面详细解释
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void afterSingletonsInstantiated() {
         // Spring 的 getBeansOfType 只能传 Class，不能传泛型，所以拿回来的是原始类型 Map
         Map<String, AbstractComposite> rawBeans = applicationContext.getBeansOfType(AbstractComposite.class);
@@ -77,9 +77,31 @@ public class CompositeContainer<T> implements SmartInitializingSingleton, Applic
         if (roots.isEmpty()) {
             return null;
         }
+        if (roots.size() == 1) {
+            return roots.get(0);
+        }
 
-        return roots.stream()
-                .min(Comparator.comparingInt(AbstractComposite::executeTier))
-                .orElse(roots.get(0));
+        AbstractComposite<T> virtualRoot = new AbstractComposite<T>() {
+            @Override
+            protected void doExecute(T param) {
+                this.children.forEach(child -> child.execute(param));
+            }
+            @Override
+            public Integer executeOrder() { return -1; }
+            @Override
+            public String type() { return "VIRTUAL"; }
+            @Override
+            public Integer executeParentOrder() {
+                return 0;
+            }
+            @Override
+            public Integer executeTier() {
+                return 0;
+            }
+        };
+
+        roots.sort(Comparator.comparingInt(AbstractComposite::executeTier));
+        roots.forEach(virtualRoot::add);
+        return virtualRoot;
     }
 }
