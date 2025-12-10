@@ -1,5 +1,6 @@
 package top.ashher.xingmu.design.composite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
@@ -12,6 +13,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class CompositeContainer<T> implements SmartInitializingSingleton, ApplicationContextAware {
 
@@ -56,52 +58,53 @@ public class CompositeContainer<T> implements SmartInitializingSingleton, Applic
     }
 
     private AbstractComposite<T> buildTree(List<AbstractComposite<T>> components) {
+        if (CollectionUtils.isEmpty(components)) {
+            return null;
+        }
         Map<Integer, AbstractComposite<T>> nodeMap = components.stream()
                 .collect(Collectors.toMap(AbstractComposite::executeOrder, Function.identity()));
-
         List<AbstractComposite<T>> roots = new ArrayList<>();
-
         for (AbstractComposite<T> node : components) {
             Integer parentId = node.executeParentOrder();
-
             if (parentId == null || parentId == 0) {
                 roots.add(node);
+                continue;
+            }
+            AbstractComposite<T> parent = nodeMap.get(parentId);
+            if (parent != null) {
+                parent.add(node);
             } else {
-                AbstractComposite<T> parent = nodeMap.get(parentId);
-                if (parent != null) {
-                    parent.add(node);
-                }
+                log.warn("Parent not found for node with order {}. Treating as root.", node.executeOrder());
+                roots.add(node);
             }
         }
 
-        if (roots.isEmpty()) {
-            return null;
-        }
+        roots.sort(Comparator.comparingInt(AbstractComposite::executeTier));
+
         if (roots.size() == 1) {
             return roots.get(0);
         }
 
-        AbstractComposite<T> virtualRoot = new AbstractComposite<T>() {
-            @Override
-            protected void doExecute(T param) {
-                this.children.forEach(child -> child.execute(param));
-            }
-            @Override
-            public Integer executeOrder() { return -1; }
-            @Override
-            public String type() { return "VIRTUAL"; }
-            @Override
-            public Integer executeParentOrder() {
-                return 0;
-            }
-            @Override
-            public Integer executeTier() {
-                return 0;
-            }
-        };
+        return new VirtualRoot<>(roots);
+    }
 
-        roots.sort(Comparator.comparingInt(AbstractComposite::executeTier));
-        roots.forEach(virtualRoot::add);
-        return virtualRoot;
+    private static class VirtualRoot<T> extends AbstractComposite<T> {
+
+        public VirtualRoot(List<AbstractComposite<T>> roots) {
+            roots.forEach(this::add);
+        }
+
+        @Override
+        protected void doExecute(T param) { }
+        @Override
+        public String type() { return "VIRTUAL_ROOT"; }
+        @Override
+        public Integer executeOrder() { return -1; } // 排序最前
+        @Override
+        public Integer executeParentOrder() { return 0; }
+        @Override
+        public Integer executeTier() { return 0; }
     }
 }
+
+

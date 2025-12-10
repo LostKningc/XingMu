@@ -17,13 +17,8 @@
         <module name="xingmu-user-api" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="xingmu-auth" target="17" />
-      <module name="xingmu-framework" target="17" />
-      <module name="xingmu-gateway" target="17" />
-      <module name="xingmu-order" target="17" />
-      <module name="xingmu-payment" target="17" />
-      <module name="xingmu-ticket" target="17" />
-    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters" />
   </component>
 </project>

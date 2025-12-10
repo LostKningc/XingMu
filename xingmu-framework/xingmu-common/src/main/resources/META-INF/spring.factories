@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationContextInitializer=\
+  top.ashher.xingmu.util.SpringUtil
