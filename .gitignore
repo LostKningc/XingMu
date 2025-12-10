@@ -43,3 +43,4 @@ bin/
 Thumbs.db
 *.swp
 *.swo
+/.idea/
