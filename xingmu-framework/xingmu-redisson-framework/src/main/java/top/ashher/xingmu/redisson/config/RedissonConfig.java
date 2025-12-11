@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Primary;
 import org.springframework.util.ReflectionUtils;
 import top.ashher.xingmu.redisson.locallock.LocalLockCache;
+import top.ashher.xingmu.redisson.lockinfo.factory.LockInfoHandleFactory;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -56,5 +57,10 @@ public class RedissonConfig {
     @Bean
     public LocalLockCache localLockCache(){
         return new LocalLockCache();
+    }
+
+    @Bean
+    public LockInfoHandleFactory lockInfoHandleFactory(){
+        return new LockInfoHandleFactory();
     }
 }

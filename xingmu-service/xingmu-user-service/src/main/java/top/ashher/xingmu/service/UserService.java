@@ -22,9 +22,13 @@ import top.ashher.xingmu.enums.BaseCode;
 import top.ashher.xingmu.exception.XingMuFrameException;
 import top.ashher.xingmu.mapper.UserMobileMapper;
 import top.ashher.xingmu.redisson.bloom.handler.BloomFilterHandler;
+import top.ashher.xingmu.redisson.lockinfo.LockType;
+import top.ashher.xingmu.redisson.servicelock.annotion.ServiceLock;
 import top.ashher.xingmu.vo.UserVo;
 
 import java.util.Objects;
+
+import static top.ashher.xingmu.redisson.servicelock.core.DistributedLockConstants.REGISTER_USER_LOCK;
 
 @Slf4j
 @Service
@@ -53,7 +57,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    //@ServiceLock(lockType= LockType.Write,name = REGISTER_USER_LOCK,keys = {"#userRegisterDto.mobile"})
+    @ServiceLock(lockType= LockType.Write,name = REGISTER_USER_LOCK,keys = {"#userRegisterDto.mobile"})
     public Boolean register(UserRegisterDto userRegisterDto) {
         compositeContainer.execute(CompositeCheckType.USER_REGISTER_CHECK.getValue(),userRegisterDto);
         log.info("注册手机号:{}",userRegisterDto.getMobile());
