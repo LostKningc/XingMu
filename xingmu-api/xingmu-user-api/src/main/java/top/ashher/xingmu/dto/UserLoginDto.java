@@ -8,8 +8,7 @@ import lombok.Data;
 @Schema(title="UserLoginDto", description ="用户登录")
 public class UserLoginDto {
 
-    @Schema(name ="code", type ="String", description ="渠道code 0001:pc网站", requiredMode= Schema.RequiredMode.REQUIRED)
-    @NotBlank
+    @Schema(name ="code", type ="String", description ="渠道code 0001:pc网站")
     private String code;
 
     @Schema(name ="name", type ="String", description ="用户手机号")
