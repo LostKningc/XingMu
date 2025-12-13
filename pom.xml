@@ -13,6 +13,7 @@
         <module>xingmu-framework/xingmu-redisson-framework</module>
         <module>xingmu-framework/xingmu-id-generator-framework</module>
         <module>xingmu-framework/xingmu-service-initialize</module>
+        <module>xingmu-framework/xingmu-web-starter</module>
 
         <module>xingmu-api/xingmu-user-api</module>
 

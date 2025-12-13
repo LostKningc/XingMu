@@ -1,0 +1,26 @@
+package top.ashher.xingmu.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+@Data
+@Schema(title="UserUpdateMobileDto", description ="修改用户手机号")
+public class UserUpdateMobileDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @Schema(name ="id", type ="Long", description ="用户id",requiredMode= Schema.RequiredMode.REQUIRED)
+    @NotNull
+    private Long id;
+
+    @Schema(name ="mobile", type ="String", description ="手机号",requiredMode= Schema.RequiredMode.REQUIRED)
+    @NotBlank
+    private String mobile;
+
+}

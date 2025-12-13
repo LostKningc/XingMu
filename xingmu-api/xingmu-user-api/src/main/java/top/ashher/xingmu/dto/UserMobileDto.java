@@ -1,0 +1,14 @@
+package top.ashher.xingmu.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+@Schema(title="UserMobileDto", description ="用户手机号入参")
+public class UserMobileDto {
+
+    @Schema(name ="name", type ="String", description ="用户手机号", requiredMode= Schema.RequiredMode.REQUIRED)
+    @NotBlank
+    private String mobile;
+}
