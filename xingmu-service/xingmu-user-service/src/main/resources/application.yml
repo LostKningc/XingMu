@@ -28,3 +28,6 @@ xingmu:
   jwt:
     secret: xingmu-secret-key
     expire: 3600
+  cache:
+    ticket-user:
+      expire-minute: 30

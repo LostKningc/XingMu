@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 
 import static top.ashher.xingmu.constant.Constant.USER_ID;
 import static top.ashher.xingmu.redisson.servicelock.core.DistributedLockConstants.REGISTER_USER_LOCK;
+import static top.ashher.xingmu.service.tool.ServiceUtil.getRealUserId;
 
 @Slf4j
 @Service
@@ -318,14 +319,6 @@ public class    UserService extends ServiceImpl<UserMapper, User> {
         updateUser.setIdNumber(userAuthenticationDto.getIdNumber());
         updateUser.setRelAuthenticationStatus(BusinessStatus.YES.getCode());
         userMapper.updateById(updateUser);
-    }
-
-    public Long getRealUserId(){
-        String userIdStr = BaseParameterHolder.getParameter(USER_ID);
-        if (StringUtil.isEmpty(userIdStr)) {
-            throw new XingMuFrameException(BaseCode.LOGIN_USER_NOT_EXIST);
-        }
-        return Long.parseLong(userIdStr);
     }
 
     public UserVo getByMobile(UserMobileDto userMobileDto) {
