@@ -57,7 +57,6 @@ import static top.ashher.xingmu.service.tool.ServiceUtil.getRealUserId;
 
 @Slf4j
 @Service
-@MapperScan("top.ashher.xingmu.mapper")
 public class    UserService extends ServiceImpl<UserMapper, User> {
 
     @Autowired

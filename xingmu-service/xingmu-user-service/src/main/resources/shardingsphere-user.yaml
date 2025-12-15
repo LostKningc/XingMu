@@ -1,10 +1,4 @@
 dataSources:
-  ds_config:
-    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
-    driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_config?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
-    username: root
-    password: 223375
   ds_0:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -20,9 +14,6 @@ dataSources:
     password: 223375
 
 rules:
-  - !SINGLE
-    tables:
-      - ds_config.WORKER_NODE
   - !SHARDING
     tables:
       # --- 1. 用户手机表 (字符串 Hash 分片) ---

@@ -7,19 +7,26 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="xingmu-web-starter" />
         <module name="xingmu-user-service" />
-        <module name="xingmu-id-generator-framework" />
-        <module name="xingmu-database-framework" />
         <module name="xingmu-redisson-framework" />
         <module name="xingmu-redis-framework" />
-        <module name="xingmu-common" />
+        <module name="xingmu-program-service" />
         <module name="xingmu-service-initialize" />
+        <module name="xingmu-program-api" />
         <module name="xingmu-user-api" />
+        <module name="xingmu-web-starter" />
+        <module name="xingmu-id-generator-framework" />
+        <module name="xingmu-es-starter" />
+        <module name="xingmu-database-framework" />
+        <module name="xingmu-common" />
+        <module name="xingmu-common-api" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="xingmu-program-service" options="-parameters" />
+    </option>
   </component>
 </project>

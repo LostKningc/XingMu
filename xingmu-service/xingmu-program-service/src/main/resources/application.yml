@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: xingmu-program-service
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-program.yaml
+    uid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/xingmu_config?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8
+      username: root
+      password: 223375
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+
+
+bloom-filter:
+  name: xingmu-program-bloom-filter
+  expectedInsertions: 1000
+  falseProbability: 0.01

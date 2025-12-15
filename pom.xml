@@ -14,10 +14,14 @@
         <module>xingmu-framework/xingmu-id-generator-framework</module>
         <module>xingmu-framework/xingmu-service-initialize</module>
         <module>xingmu-framework/xingmu-web-starter</module>
+        <module>xingmu-framework/xingmu-es-starter</module>
 
         <module>xingmu-api/xingmu-user-api</module>
+        <module>xingmu-api/xingmu-program-api</module>
+        <module>xingmu-api/xingmu-common-api</module>
 
         <module>xingmu-service/xingmu-user-service</module>
+        <module>xingmu-service/xingmu-program-service</module>
         <!-- 可按需调整/精简 -->
     </modules>
 

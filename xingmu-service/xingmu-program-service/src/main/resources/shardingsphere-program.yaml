@@ -1,0 +1,149 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    # 加上引号，防止特殊字符解析错误
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_program_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_program_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+
+rules:
+  - !BROADCAST
+    tables:
+      - x_program_category
+  - !SHARDING
+    tables:
+      # --- 1. 节目主表 (ID 分片) ---
+      x_program:
+        actualDataNodes: ds_${0..1}.x_program_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: program_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: program_table_inline
+
+      # --- 2. 节目分组表 (ID 分片) ---
+      x_program_group:
+        actualDataNodes: ds_${0..1}.x_program_group_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: program_group_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: program_group_table_inline
+
+      # --- 3. 节目场次表 (Program ID 分片 - 确保与节目在同库) ---
+      x_program_show_time:
+        actualDataNodes: ds_${0..1}.x_program_show_time_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: program_id
+            shardingAlgorithmName: program_show_time_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: program_id
+            shardingAlgorithmName: program_show_time_table_inline
+
+      # --- 4. 座位表 (Program ID 分片) ---
+      x_seat:
+        actualDataNodes: ds_${0..1}.x_seat_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: program_id
+            shardingAlgorithmName: seat_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: program_id
+            shardingAlgorithmName: seat_table_inline
+
+      # --- 5. 票档/票种表 (Program ID 分片) ---
+      x_ticket_category:
+        actualDataNodes: ds_${0..1}.x_ticket_category_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: program_id
+            shardingAlgorithmName: ticket_category_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: program_id
+            shardingAlgorithmName: ticket_category_table_inline
+
+    # --- 绑定表 (确保同库同表) ---
+    bindingTables:
+      - x_program,x_program_show_time,x_seat,x_ticket_category
+
+    # --- 算法定义 ---
+    shardingAlgorithms:
+      # -------------------------------------------------------
+      # 节目表算法 (基于 id)
+      # -------------------------------------------------------
+      program_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${id % 2}
+      program_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_program_${(id.intdiv(2)) % 2}
+
+      # -------------------------------------------------------
+      # 节目分组表算法 (基于 id)
+      # -------------------------------------------------------
+      program_group_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${id % 2}
+      program_group_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_program_group_${(id.intdiv(2)) % 2}
+
+      # -------------------------------------------------------
+      # 场次表算法 (基于 program_id)
+      # -------------------------------------------------------
+      program_show_time_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${program_id % 2}
+      program_show_time_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_program_show_time_${(program_id.intdiv(2)) % 2}
+
+      # -------------------------------------------------------
+      # 座位表算法 (基于 program_id)
+      # -------------------------------------------------------
+      seat_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${program_id % 2}
+      seat_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_seat_${(program_id.intdiv(2)) % 2}
+
+      # -------------------------------------------------------
+      # 票种表算法 (基于 program_id)
+      # -------------------------------------------------------
+      ticket_category_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${program_id % 2}
+      ticket_category_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_ticket_category_${(program_id.intdiv(2)) % 2}
+
+props:
+  sql-show: true

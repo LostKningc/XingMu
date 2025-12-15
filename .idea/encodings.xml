@@ -3,6 +3,10 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-common-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-common-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-program-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-program-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-user-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-user-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-auth/src/main/java" charset="UTF-8" />
@@ -11,6 +15,8 @@
     <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-database-framework/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-database-framework/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-es-starter/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-es-starter/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-id-generator-framework/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-id-generator-framework/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-framework/xingmu-redis-framework/src/main/java" charset="UTF-8" />
@@ -27,6 +33,8 @@
     <file url="file://$PROJECT_DIR$/xingmu-order/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-payment/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-payment/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-program-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-program-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-user-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-user-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-ticket/src/main/java" charset="UTF-8" />

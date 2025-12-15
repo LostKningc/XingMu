@@ -1,5 +1,6 @@
-package com.baidu.fsg.uid;
+package top.ashher.xingmu.uid;
 
+import com.baidu.fsg.uid.UidGenerator;
 import com.baidu.fsg.uid.impl.CachedUidGenerator;
 import com.baidu.fsg.uid.worker.DisposableWorkerIdAssigner;
 import org.springframework.context.annotation.Bean;
