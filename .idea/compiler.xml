@@ -16,6 +16,7 @@
         <module name="xingmu-user-api" />
         <module name="xingmu-web-starter" />
         <module name="xingmu-id-generator-framework" />
+        <module name="xingmu-basedata-service" />
         <module name="xingmu-es-starter" />
         <module name="xingmu-database-framework" />
         <module name="xingmu-common" />

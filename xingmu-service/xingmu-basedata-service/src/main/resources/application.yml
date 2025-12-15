@@ -1,14 +1,16 @@
 server:
-  port: 8070
+  port: 8081
 
 spring:
   main:
     allow-bean-definition-overriding: true
   application:
-    name: xingmu-program-service
+    name: xingmu-base-data-service
   datasource:
-    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
-    url: jdbc:shardingsphere:classpath:shardingsphere-program.yaml
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/xingmu_base_data?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 223375
     uid:
       driver-class-name: com.mysql.cj.jdbc.Driver
       jdbc-url: jdbc:mysql://localhost:3306/xingmu_config?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8
@@ -25,9 +27,3 @@ spring:
         server-addr: localhost:8848
         username: nacos
         password: nacos
-
-
-bloom-filter:
-  name: xingmu-program-bloom-filter
-  expectedInsertions: 1000
-  falseProbability: 0.01

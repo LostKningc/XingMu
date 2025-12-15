@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.ashher.xingmu.client.BaseDataClient;
 import top.ashher.xingmu.common.ApiResponse;
 import top.ashher.xingmu.design.composite.CompositeContainer;
 import top.ashher.xingmu.dto.*;
@@ -77,8 +78,8 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
     @Autowired
     private SeatMapper seatMapper;
 
-//    @Autowired
-//    private BaseDataClient baseDataClient;
+    @Autowired
+    private BaseDataClient baseDataClient;
 //
 //    @Autowired
 //    private UserClient userClient;
