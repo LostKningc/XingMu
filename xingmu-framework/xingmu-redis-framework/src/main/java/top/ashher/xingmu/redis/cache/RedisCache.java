@@ -133,6 +133,34 @@ public class RedisCache {
         return toList(value, clazz);
     }
 
+    public <T> List<T> getValueIsList(RedisKeyBuild redisKeyBuild, Class<T> clazz, Supplier<List<T>> supplier, long ttl, TimeUnit timeUnit) {
+        String key = getKey(redisKeyBuild);
+        String value = redisTemplate.opsForValue().get(key);
+
+        // 1. 缓存命中且为占位符 -> 返回空列表
+        if (CACHE_NULL_VALUE.equals(value)) {
+            return new ArrayList<>();
+        }
+
+        // 2. 缓存命中且有值 -> 反序列化返回
+        if (StringUtil.isNotEmpty(value)) {
+            return toList(value, clazz);
+        }
+
+        // 3. 缓存未命中 -> 查询数据库 (Supplier)
+        List<T> list = supplier.get();
+
+        // 4. 数据库也没值 -> 写入空占位符 (防止穿透)，过期时间较短 (3分钟)
+        if (CacheUtil.isEmpty(list)) {
+            redisTemplate.opsForValue().set(key, CACHE_NULL_VALUE, 3, TimeUnit.MINUTES);
+            return new ArrayList<>();
+        }
+
+        // 5. 数据库有值 -> 写入缓存并返回
+        set(redisKeyBuild, list, ttl, timeUnit);
+        return list;
+    }
+
     public <T> T indexForList(RedisKeyBuild redisKeyBuild, long index, Class<T> clazz) {
         return toBean(redisTemplate.opsForList().index(getKey(redisKeyBuild), index), clazz);
     }

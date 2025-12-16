@@ -25,6 +25,9 @@ spring:
         server-addr: localhost:8848
         username: nacos
         password: nacos
+feign:
+  sentinel:
+    enabled: true
 
 
 bloom-filter:

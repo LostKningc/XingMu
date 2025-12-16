@@ -11,6 +11,7 @@
         <module name="xingmu-redisson-framework" />
         <module name="xingmu-redis-framework" />
         <module name="xingmu-program-service" />
+        <module name="xingmu-order-api" />
         <module name="xingmu-service-initialize" />
         <module name="xingmu-program-api" />
         <module name="xingmu-user-api" />

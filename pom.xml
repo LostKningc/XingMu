@@ -19,6 +19,7 @@
         <module>xingmu-api/xingmu-user-api</module>
         <module>xingmu-api/xingmu-program-api</module>
         <module>xingmu-api/xingmu-common-api</module>
+        <module>xingmu-api/xingmu-order-api</module>
 
         <module>xingmu-service/xingmu-user-service</module>
         <module>xingmu-service/xingmu-program-service</module>

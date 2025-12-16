@@ -57,11 +57,11 @@ public class ProgramController {
 //        return ApiResponse.ok(programService.recommendList(programRecommendListDto));
 //    }
 //
-//    @Operation(summary  = "查询详情(根据id)")
-//    @PostMapping(value = "/detail")
-//    public ApiResponse<ProgramVo> getDetail(@Valid @RequestBody ProgramGetDto programGetDto) {
-//        return ApiResponse.ok(programService.detail(programGetDto));
-//    }
+    @Operation(summary  = "查询详情(根据id)")
+    @PostMapping(value = "/detail")
+    public ApiResponse<ProgramVo> getDetail(@Valid @RequestBody ProgramGetDto programGetDto) {
+        return ApiResponse.ok(programService.detail(programGetDto));
+    }
 //
 //    @Operation(summary  = "节目失效(根据id)")
 //    @PostMapping(value = "/invalid")

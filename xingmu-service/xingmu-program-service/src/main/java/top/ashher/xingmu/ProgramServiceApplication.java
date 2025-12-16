@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableScheduling
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "top.ashher.xingmu.client")
+@EnableFeignClients(basePackages = "top.ashher.xingmu")
 @SpringBootApplication
 public class ProgramServiceApplication {
 
