@@ -1,0 +1,26 @@
+package top.ashher.xingmu.redisson.handle;
+
+import lombok.AllArgsConstructor;
+import org.redisson.api.RedissonClient;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
+@AllArgsConstructor
+public class RedissonDataHandle {
+
+    private final RedissonClient redissonClient;
+
+    public String get(String key){
+        return (String)redissonClient.getBucket(key).get();
+    }
+
+    public void set(String key,String value){
+        redissonClient.getBucket(key).set(value);
+    }
+
+    public void set(String key,String value,long timeToLive, TimeUnit timeUnit){
+        redissonClient.getBucket(key).set(value,timeToLive,timeUnit);
+    }
+
+}

@@ -62,12 +62,12 @@ public class ProgramController {
     public ApiResponse<ProgramVo> getDetail(@Valid @RequestBody ProgramGetDto programGetDto) {
         return ApiResponse.ok(programService.detail(programGetDto));
     }
-//
-//    @Operation(summary  = "节目失效(根据id)")
-//    @PostMapping(value = "/invalid")
-//    public ApiResponse<Boolean> invalid(@Valid @RequestBody ProgramInvalidDto programInvalidDto) {
-//        return ApiResponse.ok(programService.invalid(programInvalidDto));
-//    }
+
+    @Operation(summary  = "节目失效(根据id)")
+    @PostMapping(value = "/invalid")
+    public ApiResponse<Boolean> invalid(@Valid @RequestBody ProgramInvalidDto programInvalidDto) {
+        return ApiResponse.ok(programService.invalid(programInvalidDto));
+    }
 //
 //    @Operation(summary  = "查看节目详情本地缓存(根据id)")
 //    @PostMapping(value = "/local/detail")

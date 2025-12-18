@@ -73,7 +73,6 @@ public class ProgramUtilService {
         }
     }
 
-    @ServiceLock(lockType= LockType.Read,name = PROGRAM_LOCK,keys = {"#programId"})
     public ProgramVo getById(Long programId, Long expireTime, TimeUnit timeUnit) {
         ProgramVo programVo =
                 redisCache.get(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM, programId), ProgramVo.class);

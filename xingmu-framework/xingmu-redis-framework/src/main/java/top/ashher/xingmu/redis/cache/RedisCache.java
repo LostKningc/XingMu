@@ -10,6 +10,7 @@ import top.ashher.xingmu.redis.key.RedisKeyBuild;
 import top.ashher.xingmu.util.StringUtil;
 
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class RedisCache {
 
     private static final String CACHE_NULL_VALUE = "##_NULL_VALUE_##";
     private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate2;
 
     // ============================ 1. 基础 Key 操作 ============================
 
@@ -227,6 +229,7 @@ public class RedisCache {
         return redisTemplate.opsForHash().delete(getKey(redisKeyBuild), (Object[]) hashKeys);
     }
 
+    // 获取整个 Hash 结构并转换为 Map
     public <T> Map<String, T> getAllMapForHash(RedisKeyBuild redisKeyBuild, Class<T> clazz) {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(getKey(redisKeyBuild));
         Map<String, T> result = new HashMap<>();
@@ -360,5 +363,10 @@ public class RedisCache {
         return sources.stream()
                 .map(t -> new DefaultTypedTuple<>(toBean(t.getValue(), clazz), t.getScore()))
                 .collect(Collectors.toSet());
+    }
+
+    // ============================ 8. 获取底层 RedisTemplate 实例 ============================
+    public RedisTemplate<String, Object> getInstance() {
+        return redisTemplate2;
     }
 }

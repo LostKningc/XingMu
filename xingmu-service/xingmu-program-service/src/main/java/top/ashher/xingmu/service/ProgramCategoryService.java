@@ -86,17 +86,27 @@ public class ProgramCategoryService extends ServiceImpl<ProgramCategoryMapper, P
     }
 
     public ProgramCategory getProgramCategory(Long programCategoryId){
-        ProgramCategory programCategory = redisCache.getForHash(RedisKeyBuild.createRedisKey(
-                RedisKeyManage.PROGRAM_CATEGORY_HASH), String.valueOf(programCategoryId), ProgramCategory.class);
-        if (Objects.isNull(programCategory)) {
-            Map<String, ProgramCategory> programCategoryMap = programCategoryRedisDataInit();
-            return programCategoryMap.get(String.valueOf(programCategoryId));
+        RedisKeyBuild key = RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_CATEGORY_HASH);
+        ProgramCategory programCategory = redisCache.getForHash(key, String.valueOf(programCategoryId), ProgramCategory.class);
+        if (!Objects.isNull(programCategory)) {
+            return programCategory;
         }
-        return programCategory;
+        if (redisCache.hasKey(key)) {
+            // Redis 既然有这个 Hash 结构，说明已经加载过了。
+            // 现在 Hash 里没有这个 field，证明数据库里真没有。
+            return null; // 直接返回，不要去 reload！
+        }
+        Map<String, ProgramCategory> map = programCategoryRedisDataInit();
+        return map.get(String.valueOf(programCategoryId));
     }
 
     @ServiceLock(lockType= LockType.Write,name = PROGRAM_CATEGORY_LOCK,keys = {"#all"})
     public Map<String, ProgramCategory> programCategoryRedisDataInit(){
+        RedisKeyBuild key = RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_CATEGORY_HASH);
+        Map<String, ProgramCategory> cachedMap = redisCache.getAllMapForHash(key, ProgramCategory.class);
+        if (CollectionUtil.isNotEmpty(cachedMap)) {
+            return cachedMap;
+        }
         Map<String, ProgramCategory> programCategoryMap = new HashMap<>(64);
         QueryWrapper<ProgramCategory> lambdaQueryWrapper = Wrappers.emptyWrapper();
         List<ProgramCategory> programCategoryList = programCategoryMapper.selectList(lambdaQueryWrapper);

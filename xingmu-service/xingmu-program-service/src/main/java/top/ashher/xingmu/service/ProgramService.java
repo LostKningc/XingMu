@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.ashher.xingmu.client.BaseDataClient;
@@ -38,6 +37,7 @@ import top.ashher.xingmu.redisson.lockinfo.LockType;
 import top.ashher.xingmu.redisson.servicelock.annotion.ServiceLock;
 import top.ashher.xingmu.service.constant.ProgramTimeType;
 import top.ashher.xingmu.service.localcache.*;
+import top.ashher.xingmu.service.lua.ProgramDelCacheData;
 import top.ashher.xingmu.threadlocal.BaseParameterHolder;
 import top.ashher.xingmu.util.DateUtils;
 import top.ashher.xingmu.util.StringUtil;
@@ -53,6 +53,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -89,7 +90,7 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
     private BaseDataClient baseDataClient;
 
     @Autowired
-    private ThreadPoolTaskExecutor businessExecutor;
+    private Executor businessExecutor;
 
     @Autowired
     private ProgramUtilService programUtilService;
@@ -120,7 +121,7 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
 //
 //    @Autowired
 //    private RedisStreamPushHandler redisStreamPushHandler;
-//
+
     @Autowired
     private LocalCacheProgram localCacheProgram;
 
@@ -137,13 +138,13 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
     private LocalCacheTicketCategory localCacheTicketCategory;
 
     @Autowired
-    private CompositeContainer compositeContainer;
+    private CompositeContainer<ProgramGetDto> compositeContainer;
 //
 //    @Autowired
 //    private TokenExpireManager tokenExpireManager;
 //
-//    @Autowired
-//    private ProgramDelCacheData programDelCacheData;
+    @Autowired
+    private ProgramDelCacheData programDelCacheData;
 
     /**
      * 添加节目
@@ -361,7 +362,7 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
      * @return 执行后的结果
      * */
     public ProgramVo detail(ProgramGetDto programGetDto) {
-        //compositeContainer.execute(CompositeCheckType.PROGRAM_DETAIL_CHECK.getValue(),programGetDto);
+        compositeContainer.execute(CompositeCheckType.PROGRAM_DETAIL_CHECK.getValue(),programGetDto);
         return getDetail(programGetDto);
     }
 
@@ -511,38 +512,38 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
 //
 
 
-//
-//    public List<Long> getAllProgramIdList(){
-//        LambdaQueryWrapper<Program> programLambdaQueryWrapper =
-//                Wrappers.lambdaQuery(Program.class).eq(Program::getProgramStatus, BusinessStatus.YES.getCode())
-//                        .select(Program::getId);
-//        List<Program> programs = programMapper.selectList(programLambdaQueryWrapper);
-//        return programs.stream().map(Program::getId).collect(Collectors.toList());
-//    }
-//
-    public ProgramVo getDetailFromDb(Long programId) {
-        ProgramVo programVo = programUtilService.createProgramVo(programId);
 
-        ProgramCategory programCategory = getProgramCategory(programVo.getProgramCategoryId());
-        if (Objects.nonNull(programCategory)) {
-            programVo.setProgramCategoryName(programCategory.getName());
-        }
-        ProgramCategory parentProgramCategory = getProgramCategory(programVo.getParentProgramCategoryId());
-        if (Objects.nonNull(parentProgramCategory)) {
-            programVo.setParentProgramCategoryName(parentProgramCategory.getName());
-        }
-
-        LambdaQueryWrapper<ProgramShowTime> programShowTimeLambdaQueryWrapper =
-                Wrappers.lambdaQuery(ProgramShowTime.class).eq(ProgramShowTime::getProgramId, programId);
-        ProgramShowTime programShowTime = Optional.ofNullable(programShowTimeMapper.selectOne(programShowTimeLambdaQueryWrapper))
-                .orElseThrow(() -> new XingMuFrameException(BaseCode.PROGRAM_SHOW_TIME_NOT_EXIST));
-
-        programVo.setShowTime(programShowTime.getShowTime());
-        programVo.setShowDayTime(programShowTime.getShowDayTime());
-        programVo.setShowWeekTime(programShowTime.getShowWeekTime());
-
-        return programVo;
+    public List<Long> getAllProgramIdList(){
+        LambdaQueryWrapper<Program> programLambdaQueryWrapper =
+                Wrappers.lambdaQuery(Program.class).eq(Program::getProgramStatus, BusinessStatus.YES.getCode())
+                        .select(Program::getId);
+        List<Program> programs = programMapper.selectList(programLambdaQueryWrapper);
+        return programs.stream().map(Program::getId).collect(Collectors.toList());
     }
+//
+//    public ProgramVo getDetailFromDb(Long programId) {
+//        ProgramVo programVo = programUtilService.createProgramVo(programId);
+//
+//        ProgramCategory programCategory = getProgramCategory(programVo.getProgramCategoryId());
+//        if (Objects.nonNull(programCategory)) {
+//            programVo.setProgramCategoryName(programCategory.getName());
+//        }
+//        ProgramCategory parentProgramCategory = getProgramCategory(programVo.getParentProgramCategoryId());
+//        if (Objects.nonNull(parentProgramCategory)) {
+//            programVo.setParentProgramCategoryName(parentProgramCategory.getName());
+//        }
+//
+//        LambdaQueryWrapper<ProgramShowTime> programShowTimeLambdaQueryWrapper =
+//                Wrappers.lambdaQuery(ProgramShowTime.class).eq(ProgramShowTime::getProgramId, programId);
+//        ProgramShowTime programShowTime = Optional.ofNullable(programShowTimeMapper.selectOne(programShowTimeLambdaQueryWrapper))
+//                .orElseThrow(() -> new XingMuFrameException(BaseCode.PROGRAM_SHOW_TIME_NOT_EXIST));
+//
+//        programVo.setShowTime(programShowTime.getShowTime());
+//        programVo.setShowDayTime(programShowTime.getShowDayTime());
+//        programVo.setShowWeekTime(programShowTime.getShowWeekTime());
+//
+//        return programVo;
+//    }
 
     private void preloadTicketUserList(Integer highHeat){
         if (Objects.equals(highHeat, BusinessStatus.NO.getCode())) {
@@ -660,46 +661,47 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
 //        return true;
 //    }
 //
-//    public void delRedisData(Long programId){
-//        Program program = Optional.ofNullable(programMapper.selectById(programId))
-//                .orElseThrow(() -> new XingMuFrameException(BaseCode.PROGRAM_NOT_EXIST));
-//        List<String> keys = new ArrayList<>();
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM,programId).getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_GROUP,program.getProgramGroupId()).getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SHOW_TIME,programId).getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SEAT_NO_SOLD_RESOLUTION_HASH, programId,"*").getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SEAT_LOCK_RESOLUTION_HASH, programId,"*").getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SEAT_SOLD_RESOLUTION_HASH, programId,"*").getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_TICKET_CATEGORY_LIST, programId).getRelKey());
-//        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_TICKET_REMAIN_NUMBER_HASH_RESOLUTION, programId,"*").getRelKey());
-//        programDelCacheData.del(keys,new String[]{});
-//    }
-//
-//    public Boolean invalid(final ProgramInvalidDto programInvalidDto) {
-//        Program program = new Program();
-//        program.setId(programInvalidDto.getId());
-//        program.setProgramStatus(BusinessStatus.NO.getCode());
-//        int result = programMapper.updateById(program);
-//        if (result > 0) {
-//            delRedisData(programInvalidDto.getId());
-//            redisStreamPushHandler.push(String.valueOf(programInvalidDto.getId()));
-//            programEs.deleteByProgramId(programInvalidDto.getId());
-//            return true;
-//        }else {
-//            return false;
-//        }
-//    }
+    public void delRedisData(Long programId){
+        Program program = Optional.ofNullable(programMapper.selectById(programId))
+                .orElseThrow(() -> new XingMuFrameException(BaseCode.PROGRAM_NOT_EXIST));
+        List<String> keys = new ArrayList<>();
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM,programId).getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_GROUP,program.getProgramGroupId()).getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SHOW_TIME,programId).getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SEAT_NO_SOLD_RESOLUTION_HASH, programId,"*").getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SEAT_LOCK_RESOLUTION_HASH, programId,"*").getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SEAT_SOLD_RESOLUTION_HASH, programId,"*").getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_TICKET_CATEGORY_LIST, programId).getRelKey());
+        keys.add(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_TICKET_REMAIN_NUMBER_HASH_RESOLUTION, programId,"*").getRelKey());
+        programDelCacheData.del(keys,new String[]{});
+    }
+
+    public Boolean invalid(final ProgramInvalidDto programInvalidDto) {
+        Program program = new Program();
+        program.setId(programInvalidDto.getId());
+        program.setProgramStatus(BusinessStatus.NO.getCode());
+        int result = programMapper.updateById(program);
+        if (result > 0) {
+            delRedisData(programInvalidDto.getId());
+            delLocalCache(programInvalidDto.getId());
+            //redisStreamPushHandler.push(String.valueOf(programInvalidDto.getId()));
+            //programEs.deleteByProgramId(programInvalidDto.getId());
+            return true;
+        }else {
+            return false;
+        }
+    }
 //
 //    public ProgramVo localDetail(final ProgramGetDto programGetDto) {
 //        return localCacheProgram.getCache(String.valueOf(programGetDto.getId()));
 //    }
 //
-//    public void delLocalCache(Long programId){
-//        log.info("删除本地缓存 programId : {}",programId);
-//        localCacheProgram.del(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM, programId).getRelKey());
-//        localCacheProgramGroup.del(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_GROUP, programId).getRelKey());
-//        localCacheProgramShowTime.del(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SHOW_TIME, programId).getRelKey());
-//        localCacheTicketCategory.del(programId);
-//    }
-//
+    public void delLocalCache(Long programId){
+        log.info("删除本地缓存 programId : {}",programId);
+        localCacheProgram.del(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM, programId).getRelKey());
+        localCacheProgramGroup.del(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_GROUP, programId).getRelKey());
+        localCacheProgramShowTime.del(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM_SHOW_TIME, programId).getRelKey());
+        localCacheTicketCategory.del(programId);
+    }
+
 }

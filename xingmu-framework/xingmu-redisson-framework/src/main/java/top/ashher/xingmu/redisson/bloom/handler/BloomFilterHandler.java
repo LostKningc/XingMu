@@ -4,12 +4,15 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import top.ashher.xingmu.redisson.bloom.config.BloomFilterProperties;
 
+/**
+ * 布隆过滤器处理器
+ */
 public class BloomFilterHandler {
 
     private final RBloomFilter<String> cachePenetrationBloomFilter;
 
-    public BloomFilterHandler(RedissonClient redissonClient, BloomFilterProperties bloomFilterProperties){
-        RBloomFilter<String> cachePenetrationBloomFilter = redissonClient.getBloomFilter(bloomFilterProperties.getName());
+    public BloomFilterHandler(RedissonClient redissonClient, String name, BloomFilterProperties.FilterConfig bloomFilterProperties) {
+        RBloomFilter<String> cachePenetrationBloomFilter = redissonClient.getBloomFilter(name);
         cachePenetrationBloomFilter.tryInit(bloomFilterProperties.getExpectedInsertions(),
                 bloomFilterProperties.getFalseProbability());
         this.cachePenetrationBloomFilter = cachePenetrationBloomFilter;

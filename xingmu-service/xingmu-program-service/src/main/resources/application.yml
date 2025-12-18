@@ -31,6 +31,7 @@ feign:
 
 
 bloom-filter:
-  name: xingmu-program-bloom-filter
-  expectedInsertions: 1000
-  falseProbability: 0.01
+  configs:
+    xingmu-program-id-bf:
+      expectedInsertions: 1000
+      falseProbability: 0.01

@@ -21,9 +21,10 @@ spring:
         database: 0
 
 bloom-filter:
-  name: xingmu-user-bloom-filter
-  expectedInsertions: 1000
-  falseProbability: 0.01
+  configs:
+    xingmu-user-id-bf:
+      expectedInsertions: 1000
+      falseProbability: 0.01
 
 xingmu:
   jwt:

@@ -15,9 +15,15 @@ import top.ashher.xingmu.redis.cache.RedisCache;
 public class RedisConfiguration {
 
     @Bean("redisToolRedisTemplate")
-    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate redisTemplate = new RedisTemplate();
-        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setHashKeySerializer(stringSerializer);
+        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
+        redisTemplate.setValueSerializer(jsonSerializer);
+        redisTemplate.setHashValueSerializer(jsonSerializer);
+
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         return redisTemplate;
     }
@@ -32,7 +38,8 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisCache redisCache(@Qualifier("redisToolStringRedisTemplate") StringRedisTemplate stringRedisTemplate){
-        return new RedisCache(stringRedisTemplate);
+    public RedisCache redisCache(@Qualifier("redisToolStringRedisTemplate") StringRedisTemplate stringRedisTemplate,
+                                 @Qualifier("redisToolRedisTemplate") RedisTemplate<String,Object> redisTemplate) {
+        return new RedisCache(stringRedisTemplate, redisTemplate);
     }
 }
