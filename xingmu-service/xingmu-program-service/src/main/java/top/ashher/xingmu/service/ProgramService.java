@@ -421,35 +421,35 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
                     return programVo;
                 });
     }
-//
-//    public ProgramVo simpleGetByIdMultipleCache(Long programId){
-//        ProgramVo programVoCache = localCacheProgram.getCache(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM,
-//                programId).getRelKey());
-//        if (Objects.nonNull(programVoCache)) {
-//            return programVoCache;
-//        }
-//        return redisCache.get(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM, programId), ProgramVo.class);
-//    }
-//
-//    public ProgramVo simpleGetProgramAndShowMultipleCache(Long programId){
-//        ProgramShowTime programShowTime =
-//                programShowTimeService.simpleSelectProgramShowTimeByProgramIdMultipleCache(programId);
-//        if (Objects.isNull(programShowTime)) {
-//            throw new XingMuFrameException(BaseCode.PROGRAM_SHOW_TIME_NOT_EXIST);
-//        }
-//
-//        ProgramVo programVo = simpleGetByIdMultipleCache(programId);
-//        if (Objects.isNull(programVo)) {
-//            throw new XingMuFrameException(BaseCode.PROGRAM_NOT_EXIST);
-//        }
-//
-//        programVo.setShowTime(programShowTime.getShowTime());
-//        programVo.setShowDayTime(programShowTime.getShowDayTime());
-//        programVo.setShowWeekTime(programShowTime.getShowWeekTime());
-//
-//        return programVo;
-//    }
-//
+
+    public ProgramVo simpleGetByIdMultipleCache(Long programId){
+        ProgramVo programVoCache = localCacheProgram.getCache(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM,
+                programId).getRelKey());
+        if (Objects.nonNull(programVoCache)) {
+            return programVoCache;
+        }
+        return redisCache.get(RedisKeyBuild.createRedisKey(RedisKeyManage.PROGRAM, programId), ProgramVo.class);
+    }
+
+    public ProgramVo simpleGetProgramAndShowMultipleCache(Long programId){
+        ProgramShowTime programShowTime =
+                programShowTimeService.simpleSelectProgramShowTimeByProgramIdMultipleCache(programId);
+        if (Objects.isNull(programShowTime)) {
+            throw new XingMuFrameException(BaseCode.PROGRAM_SHOW_TIME_NOT_EXIST);
+        }
+
+        ProgramVo programVo = simpleGetByIdMultipleCache(programId);
+        if (Objects.isNull(programVo)) {
+            throw new XingMuFrameException(BaseCode.PROGRAM_NOT_EXIST);
+        }
+
+        programVo.setShowTime(programShowTime.getShowTime());
+        programVo.setShowDayTime(programShowTime.getShowDayTime());
+        programVo.setShowWeekTime(programShowTime.getShowWeekTime());
+
+        return programVo;
+    }
+
 
     public ProgramGroupVo getProgramGroupMultipleCache(Long programGroupId){
         return localCacheProgramGroup.getCache(

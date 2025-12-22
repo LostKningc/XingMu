@@ -41,4 +41,13 @@ public interface UidGenerator {
      */
     String parseUID(long uid);
 
+    /**
+     * Get a unique ID with sharding key
+     *
+     * @param shardingKey Sharding key
+     * @return UID
+     * @throws UidGenerateException
+     */
+    long getUID(long shardingKey) throws UidGenerateException;
+
 }

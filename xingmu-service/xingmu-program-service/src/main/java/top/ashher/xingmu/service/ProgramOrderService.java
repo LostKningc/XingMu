@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.ashher.xingmu.client.OrderClient;
-import top.ashher.xingmu.dto.OrderCreateDto;
-import top.ashher.xingmu.dto.OrderTicketUserCreateDto;
-import top.ashher.xingmu.dto.ProgramOrderCreateDto;
-import top.ashher.xingmu.dto.SeatDto;
+import top.ashher.xingmu.dto.*;
 import top.ashher.xingmu.entity.ProgramShowTime;
 import top.ashher.xingmu.enums.BaseCode;
 import top.ashher.xingmu.enums.OrderStatus;
@@ -20,8 +17,11 @@ import top.ashher.xingmu.enums.SellStatus;
 import top.ashher.xingmu.exception.XingMuFrameException;
 import top.ashher.xingmu.redis.key.RedisKeyBuild;
 import top.ashher.xingmu.redis.key.RedisKeyManage;
+import top.ashher.xingmu.service.delaysend.DelayOrderCancelSend;
 import top.ashher.xingmu.service.kafka.CreateOrderMqDomain;
 import top.ashher.xingmu.service.kafka.CreateOrderSend;
+import top.ashher.xingmu.service.lua.ProgramCacheCreateOrderData;
+import top.ashher.xingmu.service.lua.ProgramCacheCreateOrderResolutionOperate;
 import top.ashher.xingmu.service.lua.ProgramCacheResolutionOperate;
 import top.ashher.xingmu.util.DateUtils;
 import top.ashher.xingmu.vo.ProgramVo;
@@ -33,6 +33,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static top.ashher.xingmu.service.constant.ProgramOrderConstant.ORDER_TABLE_COUNT;
 
 @Slf4j
 @Service
@@ -68,6 +70,12 @@ public class ProgramOrderService {
     @Autowired
     private SeatService seatService;
 
+    /**
+     * 获取票档列表
+     * @param programOrderCreateDto 创建订单参数
+     * @param showTime 演出时间
+     * @return 票档列表
+     */
     public List<TicketCategoryVo> getTicketCategoryList(ProgramOrderCreateDto programOrderCreateDto, Date showTime){
         List<TicketCategoryVo> getTicketCategoryVoList = new ArrayList<>();
         List<TicketCategoryVo> ticketCategoryVoList =
@@ -102,6 +110,11 @@ public class ProgramOrderService {
         return doCreate(programOrderCreateDto,purchaseSeatList);
     }
 
+    /**
+     * 创建订单操作节目缓存数据
+     * @param programOrderCreateDto 创建订单参数
+     * @return 购买座位列表
+     */
     public List<SeatVo> createOrderOperateProgramCacheResolution(ProgramOrderCreateDto programOrderCreateDto){
         ProgramShowTime programShowTime =
                 programShowTimeService.selectProgramShowTimeByProgramIdMultipleCache(programOrderCreateDto.getProgramId());
@@ -234,7 +247,7 @@ public class ProgramOrderService {
             latch.countDown();
         });
         try {
-            boolean flag = latch.await(60, TimeUnit.SECONDS);
+            boolean flag = latch.await(5, TimeUnit.SECONDS);
             if (!flag) {
                 log.error("createOrderByMq await timeout orderCreateDto : {}",JSON.toJSONString(orderCreateDto));
                 updateProgramCacheDataResolution(orderCreateDto.getProgramId(),purchaseSeatList,OrderStatus.CANCEL);

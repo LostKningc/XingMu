@@ -11,7 +11,6 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>xingmu-program-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -139,6 +138,12 @@
         <dependency>
             <groupId>top.ashher.xingmu</groupId>
             <artifactId>xingmu-order-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>top.ashher.xingmu</groupId>
+            <artifactId>xingmu-service-delay-queue-framework</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

@@ -83,6 +83,13 @@ public class TicketCategoryService extends ServiceImpl<TicketCategoryMapper, Tic
                 DateUtils.countBetweenSecond(DateUtils.now(),showTime), TimeUnit.SECONDS));
     }
 
+    /**
+     * 获取演出门票分类列表
+     * @param programId 演出ID
+     * @param expireTime 缓存过期时间
+     * @param timeUnit 过期时间单位
+     * @return 演出门票分类列表
+     */
     @ServiceLock(lockType= LockType.Read,name = TICKET_CATEGORY_LOCK,keys = {"#programId"})
     public List<TicketCategoryVo> selectTicketCategoryListByProgramId(Long programId,Long expireTime,TimeUnit timeUnit){
         List<TicketCategoryVo> ticketCategoryVoList =

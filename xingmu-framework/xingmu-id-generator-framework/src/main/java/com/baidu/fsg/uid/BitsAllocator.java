@@ -38,6 +38,8 @@ public class BitsAllocator {
     private final int timestampBits;
     private final int workerIdBits;
     private final int sequenceBits;
+    private final int geneBits;
+    private final long maxGene;
 
     /**
      * Max value for workId & sequence
@@ -47,33 +49,39 @@ public class BitsAllocator {
     private final long maxSequence;
 
     /**
-     * Shift for timestamp & workerId
+     * Shift for timestamp & workerId & sequence
+     * | timestamp | workerId | sequence |
      */
     private final int timestampShift;
     private final int workerIdShift;
+    private  final int sequenceShift;
 
     /**
-     * Constructor with timestampBits, workerIdBits, sequenceBits<br>
+     * Constructor with timestampBits, workerIdBits, sequenceBits
      * The highest bit used for sign, so <code>63</code> bits for timestampBits, workerIdBits, sequenceBits
      */
-    public BitsAllocator(int timestampBits, int workerIdBits, int sequenceBits) {
+    public BitsAllocator(int timestampBits, int workerIdBits, int sequenceBits, int geneBits) {
         // make sure allocated 64 bits
-        int allocateTotalBits = signBits + timestampBits + workerIdBits + sequenceBits;
+        int allocateTotalBits = signBits + timestampBits + workerIdBits + sequenceBits + geneBits;
         Assert.isTrue(allocateTotalBits == TOTAL_BITS, "allocate not enough 64 bits");
 
         // initialize bits
         this.timestampBits = timestampBits;
         this.workerIdBits = workerIdBits;
         this.sequenceBits = sequenceBits;
+        this.geneBits = geneBits;
 
         // initialize max value
         this.maxDeltaSeconds = ~(-1L << timestampBits);
         this.maxWorkerId = ~(-1L << workerIdBits);
         this.maxSequence = ~(-1L << sequenceBits);
+        this.maxGene = ~(-1L << geneBits);
 
         // initialize shift
-        this.timestampShift = workerIdBits + sequenceBits;
-        this.workerIdShift = sequenceBits;
+        this.timestampShift = workerIdBits + sequenceBits + geneBits;
+        this.workerIdShift = sequenceBits + geneBits;
+        this.sequenceShift = geneBits;
+
     }
 
     /**
@@ -86,7 +94,11 @@ public class BitsAllocator {
      * @return
      */
     public long allocate(long deltaSeconds, long workerId, long sequence) {
-        return (deltaSeconds << timestampShift) | (workerId << workerIdShift) | sequence;
+        return (deltaSeconds << timestampShift) | (workerId << workerIdShift) | (sequence << sequenceShift);
+    }
+
+    public long performGene(long uid, long shardingVal){
+        return uid | (shardingVal % (maxGene + 1));
     }
     
     /**
@@ -108,6 +120,8 @@ public class BitsAllocator {
         return sequenceBits;
     }
 
+    public int getGeneBits() { return geneBits; }
+
     public long getMaxDeltaSeconds() {
         return maxDeltaSeconds;
     }
@@ -127,6 +141,8 @@ public class BitsAllocator {
     public int getWorkerIdShift() {
         return workerIdShift;
     }
+
+    public int getSequenceShift() { return sequenceShift; }
     
     @Override
     public String toString() {

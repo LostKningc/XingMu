@@ -29,7 +29,8 @@ public class UidConfig {
         // 比如：
         uidGenerator.setTimeBits(29);
         uidGenerator.setWorkerBits(21);
-        uidGenerator.setSeqBits(13);
+        uidGenerator.setSeqBits(9);
+        uidGenerator.setGeneBits(4);
         uidGenerator.setEpochStr("2025-01-01"); // 初始时间，设为项目启动年份
 
         // RingBuffer 环形数组相关配置（核心性能参数）

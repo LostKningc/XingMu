@@ -64,7 +64,8 @@ public class DefaultUidGenerator implements UidGenerator, InitializingBean {
     /** Bits allocate */
     protected int timeBits = 28;
     protected int workerBits = 22;
-    protected int seqBits = 13;
+    protected int seqBits = 9;
+    protected int geneBits = 4;
 
     /** Customer epoch, unit as second. For example 2016-05-20 (ms: 1463673600000)*/
     protected String epochStr = "2016-05-20";
@@ -84,7 +85,7 @@ public class DefaultUidGenerator implements UidGenerator, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         // initialize bits allocator
-        bitsAllocator = new BitsAllocator(timeBits, workerBits, seqBits);
+        bitsAllocator = new BitsAllocator(timeBits, workerBits, seqBits, geneBits);
 
         // initialize worker id
         workerId = workerIdAssigner.assignWorkerId();
@@ -97,8 +98,14 @@ public class DefaultUidGenerator implements UidGenerator, InitializingBean {
 
     @Override
     public long getUID() throws UidGenerateException {
+        return getUID(0L);
+    }
+
+    @Override
+    public long getUID(long shardingKey) throws UidGenerateException {
         try {
-            return nextId();
+            long uid = nextId();
+            return bitsAllocator.performGene(uid, shardingKey);
         } catch (Exception e) {
             LOGGER.error("Generate unique id exception. ", e);
             throw new UidGenerateException(e);
@@ -206,6 +213,12 @@ public class DefaultUidGenerator implements UidGenerator, InitializingBean {
     public void setSeqBits(int seqBits) {
         if (seqBits > 0) {
             this.seqBits = seqBits;
+        }
+    }
+
+    public void setGeneBits(int geneBits) {
+        if (geneBits > 0) {
+            this.geneBits = geneBits;
         }
     }
 

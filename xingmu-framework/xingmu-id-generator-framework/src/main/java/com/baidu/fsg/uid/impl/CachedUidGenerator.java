@@ -76,12 +76,7 @@ public class CachedUidGenerator extends DefaultUidGenerator implements Disposabl
     
     @Override
     public long getUID() {
-        try {
-            return ringBuffer.take();
-        } catch (Exception e) {
-            LOGGER.error("Generate unique id exception. ", e);
-            throw new UidGenerateException(e);
-        }
+        return this.getUID(0L);
     }
 
     @Override
@@ -92,6 +87,17 @@ public class CachedUidGenerator extends DefaultUidGenerator implements Disposabl
     @Override
     public void destroy() throws Exception {
         bufferPaddingExecutor.shutdown();
+    }
+
+    @Override
+    public long getUID(long shardingKey) throws UidGenerateException {
+        try {
+            long uid = ringBuffer.take();
+            return bitsAllocator.performGene(uid, shardingKey);
+        } catch (Exception e) {
+            LOGGER.error("Generate unique id exception. ", e);
+            throw new UidGenerateException(e);
+        }
     }
 
     /**

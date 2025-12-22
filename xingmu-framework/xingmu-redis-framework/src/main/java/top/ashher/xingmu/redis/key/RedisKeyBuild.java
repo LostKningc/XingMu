@@ -26,9 +26,9 @@ public final class RedisKeyBuild {
         return new RedisKeyBuild(SpringUtil.getPrefixDistinctionName() + "-" + redisRelKey);
     }
 
-//    public static String getRedisKey(RedisKeyManage redisKeyManage) {
-//        return SpringUtil.getPrefixDistinctionName() + "-" + redisKeyManage.getKey();
-//    }
+    public static String getRedisKey(RedisKeyManage redisKeyManage) {
+        return SpringUtil.getPrefixDistinctionName() + "-" + redisKeyManage.getKey();
+    }
 
     @Override
     public boolean equals(Object o) {

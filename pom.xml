@@ -15,6 +15,7 @@
         <module>xingmu-framework/xingmu-service-initialize</module>
         <module>xingmu-framework/xingmu-web-starter</module>
         <module>xingmu-framework/xingmu-es-starter</module>
+        <module>xingmu-framework/xingmu-service-delay-queue-framework</module>
 
         <module>xingmu-api/xingmu-user-api</module>
         <module>xingmu-api/xingmu-program-api</module>
