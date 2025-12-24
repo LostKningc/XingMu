@@ -26,7 +26,7 @@ public class RedisCache {
 
     private static final String CACHE_NULL_VALUE = "##_NULL_VALUE_##";
     private final StringRedisTemplate redisTemplate;
-    private final RedisTemplate<String, Object> redisTemplate2;
+ //   private final RedisTemplate<String, Object> redisTemplate2;
 
     // ============================ 1. 基础 Key 操作 ============================
 
@@ -366,7 +366,7 @@ public class RedisCache {
     }
 
     // ============================ 8. 获取底层 RedisTemplate 实例 ============================
-    public RedisTemplate<String, Object> getInstance() {
-        return redisTemplate2;
+    public StringRedisTemplate getInstance() {
+        return redisTemplate;
     }
 }

@@ -26,6 +26,7 @@ import top.ashher.xingmu.entity.*;
 import top.ashher.xingmu.enums.BaseCode;
 import top.ashher.xingmu.enums.BusinessStatus;
 import top.ashher.xingmu.enums.CompositeCheckType;
+import top.ashher.xingmu.enums.SellStatus;
 import top.ashher.xingmu.exception.XingMuFrameException;
 import top.ashher.xingmu.mapper.*;
 import top.ashher.xingmu.page.PageUtil;
@@ -34,6 +35,7 @@ import top.ashher.xingmu.redis.cache.RedisCache;
 import top.ashher.xingmu.redis.key.RedisKeyBuild;
 import top.ashher.xingmu.redis.key.RedisKeyManage;
 import top.ashher.xingmu.redisson.lockinfo.LockType;
+import top.ashher.xingmu.redisson.repeatexecute.annotion.RepeatExecuteLimit;
 import top.ashher.xingmu.redisson.servicelock.annotion.ServiceLock;
 import top.ashher.xingmu.service.constant.ProgramTimeType;
 import top.ashher.xingmu.service.localcache.*;
@@ -59,6 +61,8 @@ import java.util.stream.Collectors;
 
 import static top.ashher.xingmu.constant.Constant.CODE;
 import static top.ashher.xingmu.constant.Constant.USER_ID;
+import static top.ashher.xingmu.redisson.repeatexecute.constant.RepeatExecuteLimitConstants.CANCEL_PROGRAM_ORDER;
+import static top.ashher.xingmu.redisson.repeatexecute.constant.RepeatExecuteLimitConstants.PERSIST_PROGRAM_ORDER_DATA;
 import static top.ashher.xingmu.util.DateUtils.FORMAT_DATE;
 
 @Slf4j
@@ -473,43 +477,47 @@ public class ProgramService extends ServiceImpl<ProgramMapper, Program> {
                 .collect(Collectors.toMap(TicketCategoryAggregate::getProgramId,
                         ticketCategory -> ticketCategory, (v1, v2) -> v2));
     }
-//
-//    @RepeatExecuteLimit(name = CANCEL_PROGRAM_ORDER,keys = {"#programOperateDataDto.programId","#programOperateDataDto.seatIdList"})
-//    @Transactional(rollbackFor = Exception.class)
-//    public void operateProgramData(ProgramOperateDataDto programOperateDataDto){
-//        List<TicketCategoryCountDto> ticketCategoryCountDtoList = programOperateDataDto.getTicketCategoryCountDtoList();
-//        List<Long> seatIdList = programOperateDataDto.getSeatIdList();
-//        LambdaQueryWrapper<Seat> seatLambdaQueryWrapper =
-//                Wrappers.lambdaQuery(Seat.class)
-//                        .eq(Seat::getProgramId,programOperateDataDto.getProgramId())
-//                        .in(Seat::getId, seatIdList);
-//        List<Seat> seatList = seatMapper.selectList(seatLambdaQueryWrapper);
-//        if (CollectionUtil.isEmpty(seatList)) {
-//            throw new XingMuFrameException(BaseCode.SEAT_NOT_EXIST);
-//        }
-//        if (seatList.size() != seatIdList.size()) {
-//            throw new XingMuFrameException(BaseCode.SEAT_UPDATE_REL_COUNT_NOT_EQUAL_PRESET_COUNT);
-//        }
-//        for (Seat seat : seatList) {
-//            if (Objects.equals(seat.getSellStatus(), SellStatus.SOLD.getCode())) {
-//                throw new XingMuFrameException(BaseCode.SEAT_SOLD);
-//            }
-//        }
-//        LambdaUpdateWrapper<Seat> seatLambdaUpdateWrapper =
-//                Wrappers.lambdaUpdate(Seat.class)
-//                        .eq(Seat::getProgramId,programOperateDataDto.getProgramId())
-//                        .in(Seat::getId, seatIdList);
-//        Seat updateSeat = new Seat();
-//        updateSeat.setSellStatus(SellStatus.SOLD.getCode());
-//        seatMapper.update(updateSeat,seatLambdaUpdateWrapper);
-//
-//        int updateRemainNumberCount =
-//                ticketCategoryMapper.batchUpdateRemainNumber(ticketCategoryCountDtoList,programOperateDataDto.getProgramId());
-//        if (updateRemainNumberCount != ticketCategoryCountDtoList.size()) {
-//            throw new XingMuFrameException(BaseCode.UPDATE_TICKET_CATEGORY_COUNT_NOT_CORRECT);
-//        }
-//    }
-//
+
+    /**
+     * 操作节目数据
+     * @param programOperateDataDto 操作节目数据的入参
+     * */
+    @RepeatExecuteLimit(name = PERSIST_PROGRAM_ORDER_DATA,keys = {"#programOperateDataDto.programId","#programOperateDataDto.seatIdList"})
+    @Transactional(rollbackFor = Exception.class)
+    public void operateProgramData(ProgramOperateDataDto programOperateDataDto){
+        List<TicketCategoryCountDto> ticketCategoryCountDtoList = programOperateDataDto.getTicketCategoryCountDtoList();
+        List<Long> seatIdList = programOperateDataDto.getSeatIdList();
+        LambdaQueryWrapper<Seat> seatLambdaQueryWrapper =
+                Wrappers.lambdaQuery(Seat.class)
+                        .eq(Seat::getProgramId,programOperateDataDto.getProgramId())
+                        .in(Seat::getId, seatIdList);
+        List<Seat> seatList = seatMapper.selectList(seatLambdaQueryWrapper);
+        if (CollectionUtil.isEmpty(seatList)) {
+            throw new XingMuFrameException(BaseCode.SEAT_NOT_EXIST);
+        }
+        if (seatList.size() != seatIdList.size()) {
+            throw new XingMuFrameException(BaseCode.SEAT_UPDATE_REL_COUNT_NOT_EQUAL_PRESET_COUNT);
+        }
+        for (Seat seat : seatList) {
+            if (Objects.equals(seat.getSellStatus(), SellStatus.SOLD.getCode())) {
+                throw new XingMuFrameException(BaseCode.SEAT_SOLD);
+            }
+        }
+        LambdaUpdateWrapper<Seat> seatLambdaUpdateWrapper =
+                Wrappers.lambdaUpdate(Seat.class)
+                        .eq(Seat::getProgramId,programOperateDataDto.getProgramId())
+                        .in(Seat::getId, seatIdList);
+        Seat updateSeat = new Seat();
+        updateSeat.setSellStatus(SellStatus.SOLD.getCode());
+        seatMapper.update(updateSeat,seatLambdaUpdateWrapper);
+
+        int updateRemainNumberCount =
+                ticketCategoryMapper.batchUpdateRemainNumber(ticketCategoryCountDtoList,programOperateDataDto.getProgramId());
+        if (updateRemainNumberCount != ticketCategoryCountDtoList.size()) {
+            throw new XingMuFrameException(BaseCode.UPDATE_TICKET_CATEGORY_COUNT_NOT_CORRECT);
+        }
+    }
+
 
 
 

@@ -34,6 +34,7 @@ import top.ashher.xingmu.mapper.UserMobileMapper;
 import top.ashher.xingmu.redis.cache.RedisCache;
 import top.ashher.xingmu.redis.key.RedisKeyBuild;
 import top.ashher.xingmu.redis.key.RedisKeyManage;
+import top.ashher.xingmu.redisson.bloom.config.BloomFilterManager;
 import top.ashher.xingmu.redisson.bloom.handler.BloomFilterHandler;
 import top.ashher.xingmu.redisson.lockinfo.LockType;
 import top.ashher.xingmu.redisson.servicelock.annotion.ServiceLock;
@@ -57,7 +58,7 @@ import static top.ashher.xingmu.service.tool.ServiceUtil.getRealUserId;
 
 @Slf4j
 @Service
-public class    UserService extends ServiceImpl<UserMapper, User> {
+public class UserService extends ServiceImpl<UserMapper, User> {
 
     @Autowired
     private UserMapper userMapper;
@@ -68,7 +69,7 @@ public class    UserService extends ServiceImpl<UserMapper, User> {
     @Autowired
     private UidGenerator uidGenerator;
     @Autowired
-    private BloomFilterHandler bloomFilterHandler;
+    private BloomFilterManager bloomFilterManager;
     @Autowired
     private RedisCache redisCache;
     @Autowired
@@ -110,7 +111,7 @@ public class    UserService extends ServiceImpl<UserMapper, User> {
         userMobile.setUserId(user.getId());
         userMobile.setMobile(userRegisterDto.getMobile());
         userMobileMapper.insert(userMobile);
-        bloomFilterHandler.add(userMobile.getMobile());
+        bloomFilterManager.getFilter("xingmu-user-id-bf").add(userMobile.getMobile());
         return true;
     }
 
@@ -200,7 +201,7 @@ public class    UserService extends ServiceImpl<UserMapper, User> {
 
 
     public void doExist(String mobile){
-        boolean contains = bloomFilterHandler.contains(mobile);
+        boolean contains = bloomFilterManager.getFilter("xingmu-user-id-bf").contains(mobile);
         if (contains) {
             LambdaQueryWrapper<UserMobile> queryWrapper = Wrappers.lambdaQuery(UserMobile.class)
                     .eq(UserMobile::getMobile, mobile);

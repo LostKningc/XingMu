@@ -40,9 +40,9 @@ public class ProgramSeatCacheData {
 
     public List<SeatVo> getData(List<String> keys, String[] args){
         List<SeatVo> list;
-        Object object = redisCache.getInstance().execute(redisScript, keys, (Object) args);
+        Object object = redisCache.getInstance().execute(redisScript, keys, args);
         List<String> seatVoStrlist = new ArrayList<>();
-        if (Objects.nonNull(object) && object instanceof ArrayList) {
+        if (object instanceof ArrayList) {
             seatVoStrlist = (ArrayList<String>)object;
         }
         if (seatVoStrlist.size() > THRESHOLD_VALUE) {

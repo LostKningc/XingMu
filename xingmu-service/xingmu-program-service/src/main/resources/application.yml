@@ -25,6 +25,13 @@ spring:
         server-addr: localhost:8848
         username: nacos
         password: nacos
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    producer:
+      retries: 1
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    topic: create_order
 feign:
   sentinel:
     enabled: true

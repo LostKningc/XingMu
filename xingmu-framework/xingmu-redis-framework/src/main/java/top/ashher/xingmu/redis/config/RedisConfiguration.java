@@ -14,19 +14,19 @@ import top.ashher.xingmu.redis.cache.RedisCache;
 @Configuration
 public class RedisConfiguration {
 
-    @Bean("redisToolRedisTemplate")
-    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
-        StringRedisSerializer stringSerializer = new StringRedisSerializer();
-        redisTemplate.setKeySerializer(stringSerializer);
-        redisTemplate.setHashKeySerializer(stringSerializer);
-        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
-        redisTemplate.setValueSerializer(jsonSerializer);
-        redisTemplate.setHashValueSerializer(jsonSerializer);
-
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        return redisTemplate;
-    }
+//    @Bean("redisToolRedisTemplate")
+//    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
+//        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+//        redisTemplate.setKeySerializer(stringSerializer);
+//        redisTemplate.setHashKeySerializer(stringSerializer);
+//        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
+//        redisTemplate.setValueSerializer(jsonSerializer);
+//        redisTemplate.setHashValueSerializer(jsonSerializer);
+//
+//        redisTemplate.setConnectionFactory(redisConnectionFactory);
+//        return redisTemplate;
+//    }
 
     @Primary
     @Bean("redisToolStringRedisTemplate")
@@ -38,8 +38,7 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisCache redisCache(@Qualifier("redisToolStringRedisTemplate") StringRedisTemplate stringRedisTemplate,
-                                 @Qualifier("redisToolRedisTemplate") RedisTemplate<String,Object> redisTemplate) {
-        return new RedisCache(stringRedisTemplate, redisTemplate);
+    public RedisCache redisCache(@Qualifier("redisToolStringRedisTemplate") StringRedisTemplate stringRedisTemplate) {
+        return new RedisCache(stringRedisTemplate);
     }
 }

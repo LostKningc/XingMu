@@ -59,6 +59,9 @@ if (type == 1) then
         for index2,seat_dto in ipairs(seat_dto_list) do
             local id = seat_dto.id
             local seat_dto_price = seat_dto.price
+            if (not seat_dto_price) then
+                return string.format('{"%s": %d}', 'code', 40008)
+            end
             local seat_vo_str = redis.call('hget', seat_no_sold_hash_key, tostring(id))
             if not seat_vo_str then
                 return string.format('{"%s": %d}', 'code', 40001)

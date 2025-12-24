@@ -33,7 +33,7 @@ public class ProgramCacheCreateOrderResolutionOperate {
     }
 
     public ProgramCacheCreateOrderData programCacheOperate(List<String> keys, String[] args){
-        Object object = redisCache.getInstance().execute(redisScript, keys, (Object) args);
-        return JSON.parseObject((String)object, ProgramCacheCreateOrderData.class);
+        String object = redisCache.getInstance().execute(redisScript, keys, args);
+        return JSON.parseObject(object, ProgramCacheCreateOrderData.class);
     }
 }

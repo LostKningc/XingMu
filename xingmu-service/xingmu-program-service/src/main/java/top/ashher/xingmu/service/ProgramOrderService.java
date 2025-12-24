@@ -1,6 +1,7 @@
 package top.ashher.xingmu.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,17 +10,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.ashher.xingmu.client.OrderClient;
+import top.ashher.xingmu.design.composite.CompositeContainer;
 import top.ashher.xingmu.dto.*;
 import top.ashher.xingmu.entity.ProgramShowTime;
 import top.ashher.xingmu.enums.BaseCode;
+import top.ashher.xingmu.enums.CompositeCheckType;
 import top.ashher.xingmu.enums.OrderStatus;
 import top.ashher.xingmu.enums.SellStatus;
 import top.ashher.xingmu.exception.XingMuFrameException;
 import top.ashher.xingmu.redis.key.RedisKeyBuild;
 import top.ashher.xingmu.redis.key.RedisKeyManage;
+import top.ashher.xingmu.redisson.locallock.LocalLockCache;
+import top.ashher.xingmu.redisson.repeatexecute.annotion.RepeatExecuteLimit;
+import top.ashher.xingmu.redisson.repeatexecute.constant.RepeatExecuteLimitConstants;
 import top.ashher.xingmu.service.delaysend.DelayOrderCancelSend;
 import top.ashher.xingmu.service.kafka.CreateOrderMqDomain;
 import top.ashher.xingmu.service.kafka.CreateOrderSend;
+import top.ashher.xingmu.service.locktask.LockTask;
 import top.ashher.xingmu.service.lua.ProgramCacheCreateOrderData;
 import top.ashher.xingmu.service.lua.ProgramCacheCreateOrderResolutionOperate;
 import top.ashher.xingmu.service.lua.ProgramCacheResolutionOperate;
@@ -32,16 +39,15 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import static top.ashher.xingmu.service.constant.ProgramOrderConstant.ORDER_TABLE_COUNT;
+import static top.ashher.xingmu.redisson.servicelock.core.DistributedLockConstants.PROGRAM_ORDER_CREATE_LOCK;
+
 
 @Slf4j
 @Service
 public class ProgramOrderService {
-
-    @Autowired
-    private OrderClient orderClient;
 
     @Autowired
     private UidGenerator uidGenerator;
@@ -69,6 +75,12 @@ public class ProgramOrderService {
 
     @Autowired
     private SeatService seatService;
+
+    @Autowired
+    private CompositeContainer<ProgramOrderCreateDto> compositeContainer;
+
+    @Autowired
+    private LocalLockCache localLockCache;
 
     /**
      * 获取票档列表
@@ -103,6 +115,20 @@ public class ProgramOrderService {
             }
         }
         return getTicketCategoryVoList;
+    }
+
+    /**
+     * 创建订单
+     * @param programOrderCreateDto 创建订单参数
+     * @return 订单编号
+     */
+    @RepeatExecuteLimit(
+            name = RepeatExecuteLimitConstants.CREATE_PROGRAM_ORDER,
+            keys = {"#programOrderCreateDto.userId","#programOrderCreateDto.programId"})
+    public String createOrder(ProgramOrderCreateDto programOrderCreateDto) {
+        //compositeContainer.execute(CompositeCheckType.PROGRAM_ORDER_CREATE_CHECK.getValue(),programOrderCreateDto);
+        return localLockCreateOrder(PROGRAM_ORDER_CREATE_LOCK,programOrderCreateDto,
+                () -> createNewAsync(programOrderCreateDto));
     }
 
     public String createNewAsync(ProgramOrderCreateDto programOrderCreateDto) {
@@ -145,7 +171,6 @@ public class ProgramOrderService {
                 jsonObject.put("ticketCategoryId",ticketCategoryId);
                 jsonObject.put("ticketCount",ticketCount);
                 jsonArray.add(jsonObject);
-
                 JSONObject seatDatajsonObject = new JSONObject();
                 seatDatajsonObject.put("seatNoSoldHashKey",RedisKeyBuild.createRedisKey(
                         RedisKeyManage.PROGRAM_SEAT_NO_SOLD_RESOLUTION_HASH, programId, ticketCategoryId).getRelKey());
@@ -193,7 +218,7 @@ public class ProgramOrderService {
     private OrderCreateDto buildCreateOrderParam(ProgramOrderCreateDto programOrderCreateDto,List<SeatVo> purchaseSeatList){
         ProgramVo programVo = programService.simpleGetProgramAndShowMultipleCache(programOrderCreateDto.getProgramId());
         OrderCreateDto orderCreateDto = new OrderCreateDto();
-        orderCreateDto.setOrderNumber(uidGenerator.getOrderNumber(programOrderCreateDto.getUserId(),ORDER_TABLE_COUNT));
+        orderCreateDto.setOrderNumber(uidGenerator.getUID(programOrderCreateDto.getUserId()));
         orderCreateDto.setProgramId(programOrderCreateDto.getProgramId());
         orderCreateDto.setProgramItemPicture(programVo.getItemPicture());
         orderCreateDto.setUserId(programOrderCreateDto.getUserId());
@@ -349,4 +374,45 @@ public class ProgramOrderService {
         // 返回该 key 在 list 中的索引 + 1，因为 Lua 索引是从 1 开始的
         return keys.indexOf(key) + 1;
     }
+
+    public String localLockCreateOrder(String lockKeyPrefix, ProgramOrderCreateDto programOrderCreateDto,
+                                       LockTask<String> lockTask){
+        List<SeatDto> seatDtoList = programOrderCreateDto.getSeatDtoList();
+        List<Long> ticketCategoryIdList = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(seatDtoList)) {
+            ticketCategoryIdList =
+                    seatDtoList.stream().map(SeatDto::getTicketCategoryId).distinct().sorted().collect(Collectors.toList());
+        }else {
+            ticketCategoryIdList.add(programOrderCreateDto.getTicketCategoryId());
+        }
+        List<ReentrantLock> localLockList = new ArrayList<>(ticketCategoryIdList.size());
+        List<ReentrantLock> localLockSuccessList = new ArrayList<>(ticketCategoryIdList.size());
+        for (Long ticketCategoryId : ticketCategoryIdList) {
+            String lockKey = StrUtil.join("-",lockKeyPrefix,
+                    programOrderCreateDto.getProgramId(),ticketCategoryId);
+            ReentrantLock localLock = localLockCache.getLock(lockKey,false);
+            localLockList.add(localLock);
+        }
+        for (ReentrantLock reentrantLock : localLockList) {
+            try {
+                reentrantLock.lock();
+            }catch (Throwable t) {
+                break;
+            }
+            localLockSuccessList.add(reentrantLock);
+        }
+        try {
+            return lockTask.execute();
+        }finally {
+            for (int i = localLockSuccessList.size() - 1; i >= 0; i--) {
+                ReentrantLock reentrantLock = localLockSuccessList.get(i);
+                try {
+                    reentrantLock.unlock();
+                }catch (Throwable t) {
+                    log.error("local lock unlock error",t);
+                }
+            }
+        }
+    }
+
 }

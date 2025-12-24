@@ -94,7 +94,6 @@ public class SeatService extends ServiceImpl<SeatMapper, Seat> {
     /**
      * 查询节目座位信息(缓存预热)
      * */
-    @ServiceLock(lockType= LockType.Read,name = SEAT_LOCK,keys = {"#programId","#ticketCategoryId"})
     public List<SeatVo> selectSeatResolution(Long programId,Long ticketCategoryId,Long expireTime,TimeUnit timeUnit) {
         List<SeatVo> seatVoList = getSeatVoListByCacheResolution(programId,ticketCategoryId);
         if (CollectionUtil.isNotEmpty(seatVoList)) {

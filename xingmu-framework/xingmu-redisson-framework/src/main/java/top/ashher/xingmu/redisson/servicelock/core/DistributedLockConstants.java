@@ -18,4 +18,5 @@ public class DistributedLockConstants {
     public final static String GET_PROGRAM_SHOW_TIME_LOCK = "x_get_program_show_time_lock";
     public final static String SEAT_LOCK = "x_seat_lock";
     public final static String GET_SEAT_LOCK = "x_get_seat_lock";
+    public final static String PROGRAM_ORDER_CREATE_LOCK = "x_program_order_create_lock";
 }
