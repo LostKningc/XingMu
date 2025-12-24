@@ -1,0 +1,68 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_order_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_order_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+
+rules:
+  -!SHARDING:
+    tables:
+      x_order:
+        actualDataNodes: ds_${0..1}.x_order_${0..3}
+        databaseStrategy:
+          complex:
+            shardingColumns: order_number,user_id
+            shardingAlgorithmName: databaseOrderComplexGeneArithmetic
+        tableStrategy:
+          complex:
+            shardingColumns: order_number,user_id
+            shardingAlgorithmName: tableOrderComplexGeneArithmetic
+      x_order_ticket_user:
+        actualDataNodes: ds_${0..1}.x_order_ticket_user_${0..3}
+        databaseStrategy:
+          complex:
+            shardingColumns: order_number,user_id
+            shardingAlgorithmName: databaseOrderTicketUserComplexGeneArithmetic
+        tableStrategy:
+          complex:
+            shardingColumns: order_number,user_id
+            shardingAlgorithmName: tableOrderTicketUserComplexGeneArithmetic
+    bindingTables:
+      - x_order,x_order_ticket_user
+    shardingAlgorithms:
+      databaseOrderComplexGeneArithmetic:
+        type: CLASS_BASED
+        props:
+          sharding-count: 2
+          table-sharding-count: 4
+          strategy: complex
+          algorithmClassName: top.ashher.xingmu.shardingsphere.DatabaseOrderComplexGeneArithmetic
+      tableOrderComplexGeneArithmetic:
+        type: CLASS_BASED
+        props:
+          sharding-count: 4
+          strategy: complex
+          algorithmClassName: top.ashher.xingmu.shardingsphere.TableOrderComplexGeneArithmetic
+      databaseOrderTicketUserComplexGeneArithmetic:
+        type: CLASS_BASED
+        props:
+          sharding-count: 2
+          table-sharding-count: 4
+          strategy: complex
+          algorithmClassName: top.ashher.xingmu.shardingsphere.DatabaseOrderComplexGeneArithmetic
+      tableOrderTicketUserComplexGeneArithmetic:
+        type: CLASS_BASED
+        props:
+          sharding-count: 4
+          strategy: complex
+          algorithmClassName: top.ashher.xingmu.shardingsphere.TableOrderComplexGeneArithmetic
+props:
+  sql-show: true

@@ -126,7 +126,7 @@ public class ProgramOrderService {
             name = RepeatExecuteLimitConstants.CREATE_PROGRAM_ORDER,
             keys = {"#programOrderCreateDto.userId","#programOrderCreateDto.programId"})
     public String createOrder(ProgramOrderCreateDto programOrderCreateDto) {
-        //compositeContainer.execute(CompositeCheckType.PROGRAM_ORDER_CREATE_CHECK.getValue(),programOrderCreateDto);
+        compositeContainer.execute(CompositeCheckType.PROGRAM_ORDER_CREATE_CHECK.getValue(),programOrderCreateDto);
         return localLockCreateOrder(PROGRAM_ORDER_CREATE_LOCK,programOrderCreateDto,
                 () -> createNewAsync(programOrderCreateDto));
     }

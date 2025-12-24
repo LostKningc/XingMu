@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="xingmu-user-service" />
         <module name="xingmu-redisson-framework" />
+        <module name="xingmu-order-service" />
         <module name="xingmu-redis-framework" />
         <module name="xingmu-program-service" />
         <module name="xingmu-order-api" />

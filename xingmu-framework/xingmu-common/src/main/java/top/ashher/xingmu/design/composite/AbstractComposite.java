@@ -50,10 +50,13 @@ public abstract class AbstractComposite<T> {
 
     public abstract String type();
 
+    // 定义父节点的执行顺序标识
     public abstract Integer executeParentOrder();
 
+    // 定义当前节点的层级顺序标识
     public abstract Integer executeTier();
 
+    // 定义当前节点的执行顺序标识
     public abstract Integer executeOrder();
 
 }

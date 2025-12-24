@@ -1,0 +1,37 @@
+server:
+  port: 8075
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: xingmu-order-service
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-order.yaml
+    uid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/xingmu_config?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8
+      username: root
+      password: 223375
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        username: nacos
+        password: nacos
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    producer:
+      retries: 1
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    topic: create_order
+feign:
+  sentinel:
+    enabled: true

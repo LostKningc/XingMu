@@ -46,6 +46,7 @@ public class BaseParameterFilter extends OncePerRequestFilter {
                 BaseParameterHolder.setParameter(CODE,code);
                 MDC.put(CODE,code);
             }
+            log.info("base userid : {}",BaseParameterHolder.getParameter(USER_ID) == null ? "null" : BaseParameterHolder.getParameter(USER_ID));
             log.info("current api : {} requestBody : {}",request.getRequestURI(), requestBody);
             filterChain.doFilter(request, response);
         }finally {

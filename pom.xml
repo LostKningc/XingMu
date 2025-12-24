@@ -25,6 +25,7 @@
         <module>xingmu-service/xingmu-user-service</module>
         <module>xingmu-service/xingmu-program-service</module>
         <module>xingmu-service/xingmu-basedata-service</module>
+        <module>xingmu-service/xingmu-order-service</module>
         <!-- 可按需调整/精简 -->
     </modules>
 
