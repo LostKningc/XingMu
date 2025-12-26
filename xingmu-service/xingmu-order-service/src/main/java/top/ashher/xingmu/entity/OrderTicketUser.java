@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("d_order_ticket_user")
+@TableName("x_order_ticket_user")
 public class OrderTicketUser extends BaseEntity implements Serializable {
 
     @Serial

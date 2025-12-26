@@ -32,6 +32,13 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     topic: create_order
+    listener:
+      ack-mode: manual_immediate
+    consumer:
+      group-id: xingmu-order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 feign:
   sentinel:
     enabled: true

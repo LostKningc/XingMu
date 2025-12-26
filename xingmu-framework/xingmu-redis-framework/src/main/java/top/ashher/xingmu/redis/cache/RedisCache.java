@@ -225,6 +225,14 @@ public class RedisCache {
         return toBean(value, clazz);
     }
 
+    public <T> List<T> multiGetForHash(RedisKeyBuild redisKeyBuild, List<String> hashKeys, Class<T> clazz) {
+        List<Object> values = redisTemplate.opsForHash().multiGet(getKey(redisKeyBuild), new ArrayList<>(hashKeys));
+        List<String> stringValues = values.stream()
+                .map(v -> v == null ? null : (String) v)
+                .collect(Collectors.toList());
+        return parseObjectList(stringValues, clazz);
+    }
+
     public Long delForHash(RedisKeyBuild redisKeyBuild, String... hashKeys) {
         return redisTemplate.opsForHash().delete(getKey(redisKeyBuild), (Object[]) hashKeys);
     }

@@ -225,6 +225,8 @@ public class ProgramOrderService {
         orderCreateDto.setProgramTitle(programVo.getTitle());
         orderCreateDto.setProgramPlace(programVo.getPlace());
         orderCreateDto.setProgramShowTime(programVo.getShowTime());
+        orderCreateDto.setDistributionMode(programVo.getDeliveryInstruction());
+        orderCreateDto.setTakeTicketMode(programVo.getElectronicDeliveryTicket() == 2 ? "快递票" : "电子票");
         orderCreateDto.setProgramPermitChooseSeat(programVo.getPermitChooseSeat());
         BigDecimal databaseOrderPrice =
                 purchaseSeatList.stream().map(SeatVo::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);

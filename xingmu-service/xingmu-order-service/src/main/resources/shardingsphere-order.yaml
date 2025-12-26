@@ -13,7 +13,7 @@ dataSources:
     password: 223375
 
 rules:
-  -!SHARDING:
+  - !SHARDING
     tables:
       x_order:
         actualDataNodes: ds_${0..1}.x_order_${0..3}
