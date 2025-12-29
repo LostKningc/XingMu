@@ -17,9 +17,11 @@
         <module name="xingmu-program-api" />
         <module name="xingmu-user-api" />
         <module name="xingmu-web-starter" />
+        <module name="xingmu-pay-service" />
         <module name="xingmu-id-generator-framework" />
         <module name="xingmu-basedata-service" />
         <module name="xingmu-es-starter" />
+        <module name="xingmu-pay-api" />
         <module name="xingmu-database-framework" />
         <module name="xingmu-service-delay-queue-framework" />
         <module name="xingmu-common" />

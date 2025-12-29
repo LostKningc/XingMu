@@ -7,6 +7,8 @@
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-common-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-order-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-order-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-pay-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-pay-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-program-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-program-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-api/xingmu-user-api/src/main/java" charset="UTF-8" />
@@ -41,6 +43,8 @@
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-basedata-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-order-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-order-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-pay-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-pay-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-program-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-program-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xingmu-service/xingmu-user-service/src/main/java" charset="UTF-8" />

@@ -399,7 +399,17 @@ public class ProgramOrderService {
             try {
                 reentrantLock.lock();
             }catch (Throwable t) {
-                break;
+                // 【修复重点】: 加锁失败，必须释放之前已经成功的锁，并阻止业务执行
+                // 反向释放已经拿到的锁
+                for (int i = localLockSuccessList.size() - 1; i >= 0; i--) {
+                    try {
+                        localLockSuccessList.get(i).unlock();
+                    } catch (Throwable unlockEx) {
+                        log.error("Rollback unlock failed", unlockEx);
+                    }
+                }
+                // 抛出异常，中断流程
+                throw new XingMuFrameException(BaseCode.SYSTEM_ERROR);
             }
             localLockSuccessList.add(reentrantLock);
         }

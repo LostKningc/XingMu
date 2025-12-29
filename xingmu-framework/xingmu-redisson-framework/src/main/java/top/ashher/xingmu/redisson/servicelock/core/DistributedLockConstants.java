@@ -20,4 +20,5 @@ public class DistributedLockConstants {
     public final static String GET_SEAT_LOCK = "x_get_seat_lock";
     public final static String PROGRAM_ORDER_CREATE_LOCK = "x_program_order_create_lock";
     public final static String UPDATE_ORDER_STATUS_LOCK = "x_update_order_status_lock";
+    public final static String COMMON_PAY_LOCK = "x_common_pay_lock";
 }

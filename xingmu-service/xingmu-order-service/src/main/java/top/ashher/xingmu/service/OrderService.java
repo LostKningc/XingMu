@@ -15,10 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.ashher.xingmu.client.PayClient;
+import top.ashher.xingmu.client.UserClient;
+import top.ashher.xingmu.common.ApiResponse;
 import top.ashher.xingmu.dto.*;
 import top.ashher.xingmu.entity.Order;
 import top.ashher.xingmu.entity.OrderTicketUser;
+import top.ashher.xingmu.entity.OrderTicketUserAggregate;
 import top.ashher.xingmu.enums.BaseCode;
+import top.ashher.xingmu.enums.BusinessStatus;
 import top.ashher.xingmu.enums.OrderStatus;
 import top.ashher.xingmu.enums.SellStatus;
 import top.ashher.xingmu.exception.XingMuFrameException;
@@ -31,9 +36,11 @@ import top.ashher.xingmu.redisson.repeatexecute.annotion.RepeatExecuteLimit;
 import top.ashher.xingmu.redisson.servicelock.annotion.ServiceLock;
 import top.ashher.xingmu.service.delaysend.DelayOperateProgramDataSend;
 import top.ashher.xingmu.service.lua.OrderProgramCacheResolutionOperate;
+import top.ashher.xingmu.service.properties.OrderProperties;
 import top.ashher.xingmu.util.DateUtils;
-import top.ashher.xingmu.vo.SeatVo;
+import top.ashher.xingmu.vo.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -59,6 +66,12 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
     private DelayOperateProgramDataSend delayOperateProgramDataSend;
     @Autowired
     private OrderTicketUserMapper orderTicketUserMapper;
+    @Autowired
+    private UserClient userClient;
+    @Autowired
+    private PayClient payClient;
+    @Autowired
+    private OrderProperties orderProperties;
 
     @Transactional(rollbackFor = Exception.class)
     public String create(OrderCreateDto orderCreateDto) {
@@ -173,6 +186,144 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
     @RepeatExecuteLimit(name = PROGRAM_CACHE_REVERSE_MQ,keys = {"#programId"})
     public void updateProgramRelatedDataMq(Long programId, Map<Long,List<Long>> seatMap, OrderStatus orderStatus){
         updateProgramRelatedDataResolution(programId,seatMap,orderStatus);
+    }
+
+    public String getCache(OrderGetDto orderGetDto) {
+        return redisCache.get(RedisKeyBuild.createRedisKey(RedisKeyManage.ORDER_MQ,orderGetDto.getOrderNumber()),String.class);
+    }
+
+    public List<OrderListVo> selectList(OrderListDto orderListDto) {
+        List<OrderListVo> orderListVos = new ArrayList<>();
+        LambdaQueryWrapper<Order> orderLambdaQueryWrapper =
+                Wrappers.lambdaQuery(Order.class)
+                        .eq(Order::getUserId, orderListDto.getUserId())
+                        .orderByDesc(Order::getCreateOrderTime);
+        List<Order> orderList = orderMapper.selectList(orderLambdaQueryWrapper);
+        if (CollectionUtil.isEmpty(orderList)) {
+            return orderListVos;
+        }
+        orderListVos = BeanUtil.copyToList(orderList, OrderListVo.class);
+        List<OrderTicketUserAggregate> orderTicketUserAggregateList =
+                orderTicketUserMapper.selectOrderTicketUserAggregate(orderList.stream().map(Order::getOrderNumber).
+                        collect(Collectors.toList()));
+        Map<Long, Integer> orderTicketUserAggregateMap = orderTicketUserAggregateList.stream()
+                .collect(Collectors.toMap(OrderTicketUserAggregate::getOrderNumber,
+                        OrderTicketUserAggregate::getOrderTicketUserCount, (v1, v2) -> v2));
+        for (OrderListVo orderListVo : orderListVos) {
+            orderListVo.setTicketCount(orderTicketUserAggregateMap.get(orderListVo.getOrderNumber()));
+        }
+        return orderListVos;
+    }
+
+    public OrderGetVo get(OrderGetDto orderGetDto) {
+        LambdaQueryWrapper<Order> orderLambdaQueryWrapper =
+                Wrappers.lambdaQuery(Order.class).eq(Order::getOrderNumber, orderGetDto.getOrderNumber());
+        Order order = orderMapper.selectOne(orderLambdaQueryWrapper);
+        if (Objects.isNull(order)) {
+            throw new XingMuFrameException(BaseCode.ORDER_NOT_EXIST);
+        }
+        LambdaQueryWrapper<OrderTicketUser> orderTicketUserLambdaQueryWrapper =
+                Wrappers.lambdaQuery(OrderTicketUser.class).eq(OrderTicketUser::getOrderNumber, order.getOrderNumber());
+        List<OrderTicketUser> orderTicketUserList = orderTicketUserMapper.selectList(orderTicketUserLambdaQueryWrapper);
+        if (CollectionUtil.isEmpty(orderTicketUserList)) {
+            throw new XingMuFrameException(BaseCode.TICKET_USER_ORDER_NOT_EXIST);
+        }
+
+        OrderGetVo orderGetVo = new OrderGetVo();
+        BeanUtil.copyProperties(order,orderGetVo);
+
+        List<OrderTicketInfoVo> orderTicketInfoVoList = new ArrayList<>();
+        Map<BigDecimal, List<OrderTicketUser>> orderTicketUserMap =
+                orderTicketUserList.stream().collect(Collectors.groupingBy(OrderTicketUser::getOrderPrice));
+        orderTicketUserMap.forEach((k,v) -> {
+            OrderTicketInfoVo orderTicketInfoVo = new OrderTicketInfoVo();
+            String seatInfo = "暂无座位信息";
+            if (order.getProgramPermitChooseSeat().equals(BusinessStatus.YES.getCode())) {
+                seatInfo = v.stream().map(OrderTicketUser::getSeatInfo).collect(Collectors.joining(","));
+            }
+            orderTicketInfoVo.setSeatInfo(seatInfo);
+            orderTicketInfoVo.setPrice(v.get(0).getOrderPrice());
+            orderTicketInfoVo.setQuantity(v.size());
+            orderTicketInfoVo.setRelPrice(v.stream().map(OrderTicketUser::getOrderPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+            orderTicketInfoVoList.add(orderTicketInfoVo);
+        });
+
+        orderGetVo.setOrderTicketInfoVoList(orderTicketInfoVoList);
+
+        UserGetAndTicketUserListDto userGetAndTicketUserListDto = new UserGetAndTicketUserListDto();
+        userGetAndTicketUserListDto.setUserId(order.getUserId());
+        ApiResponse<UserGetAndTicketUserListVo> userGetAndTicketUserApiResponse =
+                userClient.getUserAndTicketUserList(userGetAndTicketUserListDto);
+
+        if (!Objects.equals(userGetAndTicketUserApiResponse.getCode(), BaseCode.SUCCESS.getCode())) {
+            throw new XingMuFrameException(userGetAndTicketUserApiResponse);
+
+        }
+        UserGetAndTicketUserListVo userAndTicketUserListVo =
+                Optional.ofNullable(userGetAndTicketUserApiResponse.getData())
+                        .orElseThrow(() -> new XingMuFrameException(BaseCode.RPC_RESULT_DATA_EMPTY));
+        if (Objects.isNull(userAndTicketUserListVo.getUserVo())) {
+            throw new XingMuFrameException(BaseCode.USER_EMPTY);
+        }
+        if (CollectionUtil.isEmpty(userAndTicketUserListVo.getTicketUserVoList())) {
+            throw new XingMuFrameException(BaseCode.TICKET_USER_EMPTY);
+        }
+        List<TicketUserVo> filterTicketUserVoList = new ArrayList<>();
+        Map<Long, TicketUserVo> ticketUserVoMap = userAndTicketUserListVo.getTicketUserVoList()
+                .stream().collect(Collectors.toMap(TicketUserVo::getId, ticketUserVo -> ticketUserVo, (v1, v2) -> v2));
+        for (OrderTicketUser orderTicketUser : orderTicketUserList) {
+            filterTicketUserVoList.add(ticketUserVoMap.get(orderTicketUser.getTicketUserId()));
+        }
+        UserInfoVo userInfoVo = new UserInfoVo();
+        BeanUtil.copyProperties(userAndTicketUserListVo.getUserVo(),userInfoVo);
+        UserAndTicketUserInfoVo userAndTicketUserInfoVo = new UserAndTicketUserInfoVo();
+        userAndTicketUserInfoVo.setUserInfoVo(userInfoVo);
+        userAndTicketUserInfoVo.setTicketUserInfoVoList(BeanUtil.copyToList(filterTicketUserVoList, TicketUserInfoVo.class));
+        orderGetVo.setUserAndTicketUserInfoVo(userAndTicketUserInfoVo);
+
+        return orderGetVo;
+    }
+
+    public String pay(OrderPayDto orderPayDto) {
+        Long orderNumber = orderPayDto.getOrderNumber();
+        LambdaQueryWrapper<Order> orderLambdaQueryWrapper =
+                Wrappers.lambdaQuery(Order.class).eq(Order::getOrderNumber, orderNumber);
+        Order order = orderMapper.selectOne(orderLambdaQueryWrapper);
+        if (Objects.isNull(order)) {
+            throw new XingMuFrameException(BaseCode.ORDER_NOT_EXIST);
+        }
+        if (Objects.equals(order.getOrderStatus(), OrderStatus.CANCEL.getCode())) {
+            throw new XingMuFrameException(BaseCode.ORDER_CANCEL);
+        }
+        if (Objects.equals(order.getOrderStatus(), OrderStatus.PAY.getCode())) {
+            throw new XingMuFrameException(BaseCode.ORDER_PAY);
+        }
+        if (Objects.equals(order.getOrderStatus(), OrderStatus.REFUND.getCode())) {
+            throw new XingMuFrameException(BaseCode.ORDER_REFUND);
+        }
+        if (orderPayDto.getPrice().compareTo(order.getOrderPrice()) != 0) {
+            throw new XingMuFrameException(BaseCode.PAY_PRICE_NOT_EQUAL_ORDER_PRICE);
+        }
+        PayDto payDto = getPayDto(orderPayDto, orderNumber);
+        ApiResponse<String> payResponse = payClient.commonPay(payDto);
+        if (!Objects.equals(payResponse.getCode(), BaseCode.SUCCESS.getCode())) {
+            throw new XingMuFrameException(payResponse);
+        }
+        return payResponse.getData();
+    }
+
+    private PayDto getPayDto(OrderPayDto orderPayDto, Long orderNumber) {
+        PayDto payDto = new PayDto();
+        payDto.setOrderNumber(String.valueOf(orderNumber));
+        payDto.setPayBillType(orderPayDto.getPayBillType());
+        payDto.setSubject(orderPayDto.getSubject());
+        payDto.setChannel(orderPayDto.getChannel());
+        payDto.setPlatform(orderPayDto.getPlatform());
+        payDto.setPrice(orderPayDto.getPrice());
+        payDto.setNotifyUrl(orderProperties.getOrderPayNotifyUrl());
+        payDto.setReturnUrl(orderProperties.getOrderPayReturnUrl());
+        return payDto;
     }
 
     @Transactional(rollbackFor = Exception.class)

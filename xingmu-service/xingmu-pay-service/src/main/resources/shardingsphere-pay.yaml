@@ -1,0 +1,61 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_pay_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: "jdbc:mysql://localhost:3306/xingmu_pay_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai"
+    username: root
+    password: 223375
+
+rules:
+  - !SHARDING
+    tables:
+      x_pay_bill:
+        actualDataNodes: ds_${0..1}.x_pay_bill_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: out_order_no
+            shardingAlgorithmName: pay_bill_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: out_order_no
+            shardingAlgorithmName: pay_bill_table_inline
+      x_refund_bill:
+        actualDataNodes: ds_${0..1}.x_refund_bill_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: out_order_no
+            shardingAlgorithmName: refund_bill_db_inline
+        tableStrategy:
+          standard:
+            shardingColumn: out_order_no
+            shardingAlgorithmName: refund_bill_table_inline
+
+    bindingTables:
+      - x_pay_bill,x_refund_bill
+
+    shardingAlgorithms:
+      pay_bill_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${(out_order_no) % 2}
+      pay_bill_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_pay_bill_${(out_order_no.intdiv(2)) % 2}
+
+      refund_bill_db_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${(out_order_no) % 2}
+      refund_bill_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: x_refund_bill_${(out_order_no.intdiv(2)) % 2}
+props:
+  sql-show: true
