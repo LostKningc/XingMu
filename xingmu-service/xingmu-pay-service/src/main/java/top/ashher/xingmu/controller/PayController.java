@@ -29,11 +29,11 @@ public class PayController {
         return ApiResponse.ok(payService.commonPay(payDto));
     }
 
-//    @Operation(summary  = "支付后回到通知")
-//    @PostMapping(value = "/notify")
-//    public ApiResponse<NotifyVo> notify(@Valid @RequestBody NotifyDto notifyDto) {
-//        return ApiResponse.ok(payService.notify(notifyDto));
-//    }
+    @Operation(summary  = "支付后回到通知")
+    @PostMapping(value = "/notify")
+    public ApiResponse<NotifyVo> notify(@Valid @RequestBody NotifyDto notifyDto) {
+        return ApiResponse.ok(payService.notify(notifyDto));
+    }
 //
 //    @Operation(summary  = "支付状态查询")
 //    @PostMapping(value = "/trade/check")
@@ -41,11 +41,11 @@ public class PayController {
 //        return ApiResponse.ok(payService.tradeCheck(tradeCheckDto));
 //    }
 //
-//    @Operation(summary  = "退款")
-//    @PostMapping(value = "/refund")
-//    public ApiResponse<String> refund(@Valid @RequestBody RefundDto refundDto) {
-//        return ApiResponse.ok(payService.refund(refundDto));
-//    }
+    @Operation(summary  = "退款")
+    @PostMapping(value = "/refund")
+    public ApiResponse<String> refund(@Valid @RequestBody RefundDto refundDto) {
+        return ApiResponse.ok(payService.refund(refundDto));
+    }
 //
 //    @Operation(summary  = "账单详情查询")
 //    @PostMapping(value = "/detail")

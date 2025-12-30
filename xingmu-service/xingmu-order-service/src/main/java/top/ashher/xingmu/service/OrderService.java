@@ -11,8 +11,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.ashher.xingmu.client.PayClient;
@@ -22,29 +25,32 @@ import top.ashher.xingmu.dto.*;
 import top.ashher.xingmu.entity.Order;
 import top.ashher.xingmu.entity.OrderTicketUser;
 import top.ashher.xingmu.entity.OrderTicketUserAggregate;
-import top.ashher.xingmu.enums.BaseCode;
-import top.ashher.xingmu.enums.BusinessStatus;
-import top.ashher.xingmu.enums.OrderStatus;
-import top.ashher.xingmu.enums.SellStatus;
+import top.ashher.xingmu.enums.*;
 import top.ashher.xingmu.exception.XingMuFrameException;
 import top.ashher.xingmu.mapper.OrderMapper;
 import top.ashher.xingmu.mapper.OrderTicketUserMapper;
 import top.ashher.xingmu.redis.cache.RedisCache;
 import top.ashher.xingmu.redis.key.RedisKeyBuild;
 import top.ashher.xingmu.redis.key.RedisKeyManage;
+import top.ashher.xingmu.redisson.lockinfo.LockType;
 import top.ashher.xingmu.redisson.repeatexecute.annotion.RepeatExecuteLimit;
 import top.ashher.xingmu.redisson.servicelock.annotion.ServiceLock;
 import top.ashher.xingmu.service.delaysend.DelayOperateProgramDataSend;
 import top.ashher.xingmu.service.lua.OrderProgramCacheResolutionOperate;
 import top.ashher.xingmu.service.properties.OrderProperties;
 import top.ashher.xingmu.util.DateUtils;
+import top.ashher.xingmu.util.StringUtil;
 import top.ashher.xingmu.vo.*;
+import top.ashher.xingmu.web.request.CustomizeRequestWrapper;
+import top.ashher.xingmu.redisson.servicelock.util.ServiceLockTool;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static top.ashher.xingmu.constant.Constant.ALIPAY_NOTIFY_FAILURE_RESULT;
+import static top.ashher.xingmu.constant.Constant.ALIPAY_NOTIFY_SUCCESS_RESULT;
 import static top.ashher.xingmu.redisson.repeatexecute.constant.RepeatExecuteLimitConstants.*;
 import static top.ashher.xingmu.redisson.servicelock.core.DistributedLockConstants.UPDATE_ORDER_STATUS_LOCK;
 
@@ -72,6 +78,12 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
     private PayClient payClient;
     @Autowired
     private OrderProperties orderProperties;
+    @Autowired
+    private ServiceLockTool serviceLockTool;
+
+    @Lazy
+    @Autowired
+    private OrderService orderService;
 
     @Transactional(rollbackFor = Exception.class)
     public String create(OrderCreateDto orderCreateDto) {
@@ -324,6 +336,70 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
         payDto.setNotifyUrl(orderProperties.getOrderPayNotifyUrl());
         payDto.setReturnUrl(orderProperties.getOrderPayReturnUrl());
         return payDto;
+    }
+
+    public String alipayNotify(HttpServletRequest request){
+
+        Map<String, String> params = new HashMap<>(256);
+        if (request instanceof final CustomizeRequestWrapper customizeRequestWrapper) {
+            String requestBody = customizeRequestWrapper.getRequestBody();
+            params = StringUtil.convertQueryStringToMap(requestBody);
+        }
+        log.info("收到支付宝回调通知 params : {}",JSON.toJSONString(params));
+        String outTradeNo = params.get("out_trade_no");
+        if (StringUtil.isEmpty(outTradeNo)) {
+            return "failure";
+        }
+
+        RLock lock = serviceLockTool.getLock(LockType.Reentrant, UPDATE_ORDER_STATUS_LOCK,
+                new String[]{outTradeNo});
+        lock.lock();
+        try {
+            Order order = orderMapper.selectOne(Wrappers.lambdaQuery(Order.class).eq(Order::getOrderNumber, Long.parseLong(outTradeNo)));
+            if (Objects.isNull(order)) {
+                throw new XingMuFrameException(BaseCode.ORDER_NOT_EXIST);
+            }
+            if (Objects.equals(order.getOrderStatus(), OrderStatus.CANCEL.getCode())) {
+                RefundDto refundDto = new RefundDto();
+                refundDto.setOrderNumber(outTradeNo);
+                refundDto.setAmount(order.getOrderPrice());
+                refundDto.setChannel("alipay");
+                refundDto.setReason("延迟订单关闭");
+                ApiResponse<String> response = payClient.refund(refundDto);
+                if (response.getCode().equals(BaseCode.SUCCESS.getCode())) {
+                    Order updateOrder = new Order();
+                    updateOrder.setEditTime(DateUtils.now());
+                    updateOrder.setOrderStatus(OrderStatus.REFUND.getCode());
+                    orderMapper.update(updateOrder,Wrappers.lambdaUpdate(Order.class).eq(Order::getOrderNumber, outTradeNo));
+                }else {
+                    log.error("pay服务退款失败 dto : {} response : {}",JSON.toJSONString(refundDto),JSON.toJSONString(response));
+                    return ALIPAY_NOTIFY_FAILURE_RESULT;
+                }
+                return ALIPAY_NOTIFY_SUCCESS_RESULT;
+            }
+
+
+            NotifyDto notifyDto = new NotifyDto();
+            notifyDto.setChannel(PayChannel.ALIPAY.getValue());
+            notifyDto.setParams(params);
+            ApiResponse<NotifyVo> notifyResponse = payClient.notify(notifyDto);
+            if (!Objects.equals(notifyResponse.getCode(), BaseCode.SUCCESS.getCode())) {
+                throw new XingMuFrameException(notifyResponse);
+            }
+            if (ALIPAY_NOTIFY_SUCCESS_RESULT.equals(notifyResponse.getData().getPayResult())) {
+                try {
+                    orderService.updateOrderRelatedData(Long.parseLong(notifyResponse.getData().getOutTradeNo())
+                            ,OrderStatus.PAY);
+                }catch (Exception e) {
+                    log.warn("updateOrderRelatedData warn message",e);
+                    return ALIPAY_NOTIFY_FAILURE_RESULT;
+                }
+            }
+            return notifyResponse.getData().getPayResult();
+        }finally {
+            lock.unlock();
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)

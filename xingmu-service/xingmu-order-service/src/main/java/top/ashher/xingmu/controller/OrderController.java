@@ -44,12 +44,12 @@ public class OrderController {
 //        return ApiResponse.ok(orderService.payCheck(orderPayCheckDto));
 //    }
 //
-//    @Operation(summary  = "支付宝支付后回调通知")
-//    @PostMapping(value = "/alipay/notify")
-//    public String alipayNotify(HttpServletRequest request) {
-//        return orderService.alipayNotify(request);
-//    }
-//
+    @Operation(summary  = "支付宝支付后回调通知")
+    @PostMapping(value = "/alipay/notify")
+    public String alipayNotify(HttpServletRequest request) {
+        return orderService.alipayNotify(request);
+    }
+
     @Operation(summary  = "查看订单列表")
     @PostMapping(value = "/select/list")
     public ApiResponse<List<OrderListVo>> selectList(@Valid @RequestBody OrderListDto orderListDto) {
