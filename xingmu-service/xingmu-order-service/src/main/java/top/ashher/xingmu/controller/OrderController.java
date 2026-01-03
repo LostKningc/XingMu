@@ -15,6 +15,7 @@ import top.ashher.xingmu.service.OrderService;
 import top.ashher.xingmu.vo.AccountOrderCountVo;
 import top.ashher.xingmu.vo.OrderGetVo;
 import top.ashher.xingmu.vo.OrderListVo;
+import top.ashher.xingmu.vo.OrderPayCheckVo;
 
 import java.util.List;
 
@@ -37,13 +38,13 @@ public class OrderController {
     public ApiResponse<String> pay(@Valid @RequestBody OrderPayDto orderPayDto) {
         return ApiResponse.ok(orderService.pay(orderPayDto));
     }
-//
-//    @Operation(summary  = "订单支付后状态检查")
-//    @PostMapping(value = "/pay/check")
-//    public ApiResponse<OrderPayCheckVo> payCheck(@Valid @RequestBody OrderPayCheckDto orderPayCheckDto) {
-//        return ApiResponse.ok(orderService.payCheck(orderPayCheckDto));
-//    }
-//
+
+    @Operation(summary  = "订单支付后状态检查")
+    @PostMapping(value = "/pay/check")
+    public ApiResponse<OrderPayCheckVo> payCheck(@Valid @RequestBody OrderPayCheckDto orderPayCheckDto) {
+        return ApiResponse.ok(orderService.payCheck(orderPayCheckDto));
+    }
+
     @Operation(summary  = "支付宝支付后回调通知")
     @PostMapping(value = "/alipay/notify")
     public String alipayNotify(HttpServletRequest request) {

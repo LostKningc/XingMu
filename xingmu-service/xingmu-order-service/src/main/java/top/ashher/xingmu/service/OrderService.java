@@ -386,7 +386,7 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
             if (!Objects.equals(notifyResponse.getCode(), BaseCode.SUCCESS.getCode())) {
                 throw new XingMuFrameException(notifyResponse);
             }
-            if (ALIPAY_NOTIFY_SUCCESS_RESULT.equals(notifyResponse.getData().getPayResult())) {
+            if (notifyResponse.getData().getPaySuccess()) {
                 try {
                     orderService.updateOrderRelatedData(Long.parseLong(notifyResponse.getData().getOutTradeNo())
                             ,OrderStatus.PAY);
@@ -466,5 +466,68 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
         if (Objects.equals(order.getOrderStatus(), OrderStatus.REFUND.getCode())) {
             throw new XingMuFrameException(BaseCode.ORDER_REFUND);
         }
+    }
+
+    @ServiceLock(name = UPDATE_ORDER_STATUS_LOCK,keys = {"#orderPayCheckDto.orderNumber"})
+    public OrderPayCheckVo payCheck(OrderPayCheckDto orderPayCheckDto){
+        OrderPayCheckVo orderPayCheckVo = new OrderPayCheckVo();
+        LambdaQueryWrapper<Order> orderLambdaQueryWrapper =
+                Wrappers.lambdaQuery(Order.class).eq(Order::getOrderNumber, orderPayCheckDto.getOrderNumber());
+        Order order = orderMapper.selectOne(orderLambdaQueryWrapper);
+        if (Objects.isNull(order)) {
+            throw new XingMuFrameException(BaseCode.ORDER_NOT_EXIST);
+        }
+        BeanUtil.copyProperties(order,orderPayCheckVo);
+        if (Objects.equals(order.getOrderStatus(), OrderStatus.CANCEL.getCode())) {
+            RefundDto refundDto = new RefundDto();
+            refundDto.setOrderNumber(String.valueOf(order.getOrderNumber()));
+            refundDto.setAmount(order.getOrderPrice());
+            refundDto.setChannel("alipay");
+            refundDto.setReason("延迟订单关闭");
+            ApiResponse<String> response = payClient.refund(refundDto);
+            if (response.getCode().equals(BaseCode.SUCCESS.getCode())) {
+                Order updateOrder = new Order();
+                updateOrder.setEditTime(DateUtils.now());
+                updateOrder.setOrderStatus(OrderStatus.REFUND.getCode());
+                orderMapper.update(updateOrder,Wrappers.lambdaUpdate(Order.class).eq(Order::getOrderNumber, order.getOrderNumber()));
+            }else {
+                log.error("pay服务退款失败 dto : {} response : {}",JSON.toJSONString(refundDto),JSON.toJSONString(response));
+            }
+            orderPayCheckVo.setOrderStatus(OrderStatus.REFUND.getCode());
+            orderPayCheckVo.setCancelOrderTime(DateUtils.now());
+            return orderPayCheckVo;
+        }
+
+        TradeCheckDto tradeCheckDto = new TradeCheckDto();
+        tradeCheckDto.setOutTradeNo(String.valueOf(orderPayCheckDto.getOrderNumber()));
+        tradeCheckDto.setChannel(Optional.ofNullable(PayChannel.getRc(orderPayCheckDto.getPayChannelType()))
+                .map(PayChannel::getValue).orElseThrow(() -> new XingMuFrameException(BaseCode.PAY_CHANNEL_NOT_EXIST)));
+        ApiResponse<TradeCheckVo> tradeCheckVoApiResponse = payClient.tradeCheck(tradeCheckDto);
+        if (!Objects.equals(tradeCheckVoApiResponse.getCode(), BaseCode.SUCCESS.getCode())) {
+            throw new XingMuFrameException(tradeCheckVoApiResponse);
+        }
+        TradeCheckVo tradeCheckVo = Optional.ofNullable(tradeCheckVoApiResponse.getData())
+                .orElseThrow(() -> new XingMuFrameException(BaseCode.PAY_BILL_NOT_EXIST));
+        if (tradeCheckVo.isSuccess()) {
+            Integer payBillStatus = tradeCheckVo.getPayBillStatus();
+            Integer orderStatus = order.getOrderStatus();
+            if (!Objects.equals(orderStatus, payBillStatus)) {
+                orderPayCheckVo.setOrderStatus(payBillStatus);
+                try {
+                    if (Objects.equals(payBillStatus, PayBillStatus.PAY.getCode())) {
+                        orderPayCheckVo.setPayOrderTime(DateUtils.now());
+                        orderService.updateOrderRelatedData(order.getOrderNumber(),OrderStatus.PAY);
+                    }else if (Objects.equals(payBillStatus, PayBillStatus.CANCEL.getCode())) {
+                        orderPayCheckVo.setCancelOrderTime(DateUtils.now());
+                        orderService.updateOrderRelatedData(order.getOrderNumber(),OrderStatus.CANCEL);
+                    }
+                }catch (Exception e) {
+                    log.warn("updateOrderRelatedData warn message",e);
+                }
+            }
+        }else {
+            throw new XingMuFrameException(BaseCode.PAY_TRADE_CHECK_ERROR);
+        }
+        return orderPayCheckVo;
     }
 }

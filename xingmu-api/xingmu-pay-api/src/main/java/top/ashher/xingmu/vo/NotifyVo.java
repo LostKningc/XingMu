@@ -18,4 +18,7 @@ public class NotifyVo implements Serializable {
 
     @Schema(name ="payResult", type ="String", description ="回调返回结果")
     private String payResult;
+
+    @Schema(name = "paySuccess", type ="Boolean", description ="支付是否成功")
+    private Boolean paySuccess;
 }

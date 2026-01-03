@@ -34,13 +34,13 @@ public class PayController {
     public ApiResponse<NotifyVo> notify(@Valid @RequestBody NotifyDto notifyDto) {
         return ApiResponse.ok(payService.notify(notifyDto));
     }
-//
-//    @Operation(summary  = "支付状态查询")
-//    @PostMapping(value = "/trade/check")
-//    public ApiResponse<TradeCheckVo> tradeCheck(@Valid @RequestBody TradeCheckDto tradeCheckDto) {
-//        return ApiResponse.ok(payService.tradeCheck(tradeCheckDto));
-//    }
-//
+
+    @Operation(summary  = "支付状态查询")
+    @PostMapping(value = "/trade/check")
+    public ApiResponse<TradeCheckVo> tradeCheck(@Valid @RequestBody TradeCheckDto tradeCheckDto) {
+        return ApiResponse.ok(payService.tradeCheck(tradeCheckDto));
+    }
+
     @Operation(summary  = "退款")
     @PostMapping(value = "/refund")
     public ApiResponse<String> refund(@Valid @RequestBody RefundDto refundDto) {
