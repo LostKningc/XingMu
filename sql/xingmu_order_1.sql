@@ -1,14 +1,41 @@
-USE xingmu_order_1;
+-- MySQL dump 10.13  Distrib 8.4.7, for macos15 (arm64)
+--
+-- Host: 127.0.0.1    Database: xingmu_order_1
+-- ------------------------------------------------------
+-- Server version	8.4.7
 
-DROP TABLE IF EXISTS `d_order_0`;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `xingmu_order_1`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `xingmu_order_1` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `xingmu_order_1`;
+
+--
+-- Table structure for table `x_order_0`
+--
+
+DROP TABLE IF EXISTS `x_order_0`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_0` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_0` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
   `program_item_picture` varchar(1024) DEFAULT NULL COMMENT '节目图片介绍',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
   `program_title` varchar(512) DEFAULT NULL COMMENT '节目标题',
   `program_place` varchar(100) DEFAULT NULL COMMENT '节目地点',
   `program_show_time` datetime DEFAULT NULL COMMENT '节目演出时间',
@@ -16,8 +43,8 @@ CREATE TABLE `d_order_0` (
   `distribution_mode` varchar(256) DEFAULT NULL COMMENT '配送方式',
   `take_ticket_mode` varchar(256) DEFAULT NULL COMMENT '取票方式',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -28,31 +55,31 @@ CREATE TABLE `d_order_0` (
   UNIQUE KEY `d_order_order_number_IDX` (`order_number`) USING BTREE,
   KEY `user_id_IDX` (`user_id`) USING BTREE,
   KEY `program_id_IDX` (`program_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_0`
+-- Dumping data for table `x_order_0`
 --
 
-LOCK TABLES `d_order_0` WRITE;
-/*!40000 ALTER TABLE `d_order_0` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_0` ENABLE KEYS */;
+LOCK TABLES `x_order_0` WRITE;
+/*!40000 ALTER TABLE `x_order_0` DISABLE KEYS */;
+/*!40000 ALTER TABLE `x_order_0` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_1`
+-- Table structure for table `x_order_1`
 --
 
-DROP TABLE IF EXISTS `d_order_1`;
+DROP TABLE IF EXISTS `x_order_1`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_1` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_1` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
   `program_item_picture` varchar(1024) DEFAULT NULL COMMENT '节目图片介绍',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
   `program_title` varchar(512) DEFAULT NULL COMMENT '节目标题',
   `program_place` varchar(100) DEFAULT NULL COMMENT '节目地点',
   `program_show_time` datetime DEFAULT NULL COMMENT '节目演出时间',
@@ -60,8 +87,8 @@ CREATE TABLE `d_order_1` (
   `distribution_mode` varchar(256) DEFAULT NULL COMMENT '配送方式',
   `take_ticket_mode` varchar(256) DEFAULT NULL COMMENT '取票方式',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -72,31 +99,31 @@ CREATE TABLE `d_order_1` (
   UNIQUE KEY `d_order_order_number_IDX` (`order_number`) USING BTREE,
   KEY `user_id_IDX` (`user_id`) USING BTREE,
   KEY `program_id_IDX` (`program_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_1`
+-- Dumping data for table `x_order_1`
 --
 
-LOCK TABLES `d_order_1` WRITE;
-/*!40000 ALTER TABLE `d_order_1` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_1` ENABLE KEYS */;
+LOCK TABLES `x_order_1` WRITE;
+/*!40000 ALTER TABLE `x_order_1` DISABLE KEYS */;
+/*!40000 ALTER TABLE `x_order_1` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_2`
+-- Table structure for table `x_order_2`
 --
 
-DROP TABLE IF EXISTS `d_order_2`;
+DROP TABLE IF EXISTS `x_order_2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_2` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_2` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
   `program_item_picture` varchar(1024) DEFAULT NULL COMMENT '节目图片介绍',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
   `program_title` varchar(512) DEFAULT NULL COMMENT '节目标题',
   `program_place` varchar(100) DEFAULT NULL COMMENT '节目地点',
   `program_show_time` datetime DEFAULT NULL COMMENT '节目演出时间',
@@ -104,8 +131,8 @@ CREATE TABLE `d_order_2` (
   `distribution_mode` varchar(256) DEFAULT NULL COMMENT '配送方式',
   `take_ticket_mode` varchar(256) DEFAULT NULL COMMENT '取票方式',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -116,31 +143,32 @@ CREATE TABLE `d_order_2` (
   UNIQUE KEY `d_order_order_number_IDX` (`order_number`) USING BTREE,
   KEY `user_id_IDX` (`user_id`) USING BTREE,
   KEY `program_id_IDX` (`program_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_2`
+-- Dumping data for table `x_order_2`
 --
 
-LOCK TABLES `d_order_2` WRITE;
-/*!40000 ALTER TABLE `d_order_2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_2` ENABLE KEYS */;
+LOCK TABLES `x_order_2` WRITE;
+/*!40000 ALTER TABLE `x_order_2` DISABLE KEYS */;
+INSERT INTO `x_order_2` VALUES (2004476929152360449,531397199520628742,3,'https://s21.ax1x.com/2024/06/06/pkYmcIs.webp',508732468120035330,'冬季恋歌—《请回答1988》韩剧主题曲演唱会','秦乐宫剧院','2024-07-14 19:30:00',1,NULL,NULL,338,NULL,1,'2025-12-26 16:58:35',NULL,NULL,'2025-12-26 16:58:35','2025-12-26 16:58:35',1);
+/*!40000 ALTER TABLE `x_order_2` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_3`
+-- Table structure for table `x_order_3`
 --
 
-DROP TABLE IF EXISTS `d_order_3`;
+DROP TABLE IF EXISTS `x_order_3`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_3` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_3` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
   `program_item_picture` varchar(1024) DEFAULT NULL COMMENT '节目图片介绍',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
   `program_title` varchar(512) DEFAULT NULL COMMENT '节目标题',
   `program_place` varchar(100) DEFAULT NULL COMMENT '节目地点',
   `program_show_time` datetime DEFAULT NULL COMMENT '节目演出时间',
@@ -148,8 +176,8 @@ CREATE TABLE `d_order_3` (
   `distribution_mode` varchar(256) DEFAULT NULL COMMENT '配送方式',
   `take_ticket_mode` varchar(256) DEFAULT NULL COMMENT '取票方式',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -160,38 +188,38 @@ CREATE TABLE `d_order_3` (
   UNIQUE KEY `d_order_order_number_IDX` (`order_number`) USING BTREE,
   KEY `user_id_IDX` (`user_id`) USING BTREE,
   KEY `program_id_IDX` (`program_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_3`
+-- Dumping data for table `x_order_3`
 --
 
-LOCK TABLES `d_order_3` WRITE;
-/*!40000 ALTER TABLE `d_order_3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_3` ENABLE KEYS */;
+LOCK TABLES `x_order_3` WRITE;
+/*!40000 ALTER TABLE `x_order_3` DISABLE KEYS */;
+/*!40000 ALTER TABLE `x_order_3` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_ticket_user_0`
+-- Table structure for table `x_order_ticket_user_0`
 --
 
-DROP TABLE IF EXISTS `d_order_ticket_user_0`;
+DROP TABLE IF EXISTS `x_order_ticket_user_0`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_ticket_user_0` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
-  `ticket_user_id` bigint(20) NOT NULL COMMENT '购票人id',
-  `seat_id` bigint(20) NOT NULL COMMENT '座位id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_ticket_user_0` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
+  `ticket_user_id` bigint NOT NULL COMMENT '购票人id',
+  `seat_id` bigint NOT NULL COMMENT '座位id',
   `seat_info` varchar(100) DEFAULT NULL COMMENT '座位信息',
-  `ticket_category_id` bigint(20) DEFAULT NULL COMMENT '节目票档id',
+  `ticket_category_id` bigint DEFAULT NULL COMMENT '节目票档id',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
   `pay_order_price` decimal(10,0) DEFAULT NULL COMMENT '支付订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -203,38 +231,38 @@ CREATE TABLE `d_order_ticket_user_0` (
   KEY `d_order_ticket_user_user_id_IDX` (`user_id`) USING BTREE,
   KEY `d_order_ticket_user_ticket_user_id_IDX` (`ticket_user_id`) USING BTREE,
   KEY `d_order_ticket_user_create_order_time_IDX` (`create_order_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='购票人订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='购票人订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_ticket_user_0`
+-- Dumping data for table `x_order_ticket_user_0`
 --
 
-LOCK TABLES `d_order_ticket_user_0` WRITE;
-/*!40000 ALTER TABLE `d_order_ticket_user_0` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_ticket_user_0` ENABLE KEYS */;
+LOCK TABLES `x_order_ticket_user_0` WRITE;
+/*!40000 ALTER TABLE `x_order_ticket_user_0` DISABLE KEYS */;
+/*!40000 ALTER TABLE `x_order_ticket_user_0` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_ticket_user_1`
+-- Table structure for table `x_order_ticket_user_1`
 --
 
-DROP TABLE IF EXISTS `d_order_ticket_user_1`;
+DROP TABLE IF EXISTS `x_order_ticket_user_1`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_ticket_user_1` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
-  `ticket_user_id` bigint(20) NOT NULL COMMENT '购票人id',
-  `seat_id` bigint(20) NOT NULL COMMENT '座位id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_ticket_user_1` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
+  `ticket_user_id` bigint NOT NULL COMMENT '购票人id',
+  `seat_id` bigint NOT NULL COMMENT '座位id',
   `seat_info` varchar(100) DEFAULT NULL COMMENT '座位信息',
-  `ticket_category_id` bigint(20) DEFAULT NULL COMMENT '节目票档id',
+  `ticket_category_id` bigint DEFAULT NULL COMMENT '节目票档id',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
   `pay_order_price` decimal(10,0) DEFAULT NULL COMMENT '支付订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -246,38 +274,38 @@ CREATE TABLE `d_order_ticket_user_1` (
   KEY `d_order_ticket_user_user_id_IDX` (`user_id`) USING BTREE,
   KEY `d_order_ticket_user_ticket_user_id_IDX` (`ticket_user_id`) USING BTREE,
   KEY `d_order_ticket_user_create_order_time_IDX` (`create_order_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='购票人订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='购票人订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_ticket_user_1`
+-- Dumping data for table `x_order_ticket_user_1`
 --
 
-LOCK TABLES `d_order_ticket_user_1` WRITE;
-/*!40000 ALTER TABLE `d_order_ticket_user_1` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_ticket_user_1` ENABLE KEYS */;
+LOCK TABLES `x_order_ticket_user_1` WRITE;
+/*!40000 ALTER TABLE `x_order_ticket_user_1` DISABLE KEYS */;
+/*!40000 ALTER TABLE `x_order_ticket_user_1` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_ticket_user_2`
+-- Table structure for table `x_order_ticket_user_2`
 --
 
-DROP TABLE IF EXISTS `d_order_ticket_user_2`;
+DROP TABLE IF EXISTS `x_order_ticket_user_2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_ticket_user_2` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
-  `ticket_user_id` bigint(20) NOT NULL COMMENT '购票人id',
-  `seat_id` bigint(20) NOT NULL COMMENT '座位id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_ticket_user_2` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
+  `ticket_user_id` bigint NOT NULL COMMENT '购票人id',
+  `seat_id` bigint NOT NULL COMMENT '座位id',
   `seat_info` varchar(100) DEFAULT NULL COMMENT '座位信息',
-  `ticket_category_id` bigint(20) DEFAULT NULL COMMENT '节目票档id',
+  `ticket_category_id` bigint DEFAULT NULL COMMENT '节目票档id',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
   `pay_order_price` decimal(10,0) DEFAULT NULL COMMENT '支付订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -289,38 +317,39 @@ CREATE TABLE `d_order_ticket_user_2` (
   KEY `d_order_ticket_user_user_id_IDX` (`user_id`) USING BTREE,
   KEY `d_order_ticket_user_ticket_user_id_IDX` (`ticket_user_id`) USING BTREE,
   KEY `d_order_ticket_user_create_order_time_IDX` (`create_order_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='购票人订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='购票人订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_ticket_user_2`
+-- Dumping data for table `x_order_ticket_user_2`
 --
 
-LOCK TABLES `d_order_ticket_user_2` WRITE;
-/*!40000 ALTER TABLE `d_order_ticket_user_2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_ticket_user_2` ENABLE KEYS */;
+LOCK TABLES `x_order_ticket_user_2` WRITE;
+/*!40000 ALTER TABLE `x_order_ticket_user_2` DISABLE KEYS */;
+INSERT INTO `x_order_ticket_user_2` VALUES (533925097012068352,531397199520628742,3,508732468120035330,531272576749527040,64,'1排4列',9,338,NULL,NULL,1,'2025-12-26 16:58:35',NULL,NULL,'2025-12-26 16:58:35','2025-12-26 16:58:35',1);
+/*!40000 ALTER TABLE `x_order_ticket_user_2` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `d_order_ticket_user_3`
+-- Table structure for table `x_order_ticket_user_3`
 --
 
-DROP TABLE IF EXISTS `d_order_ticket_user_3`;
+DROP TABLE IF EXISTS `x_order_ticket_user_3`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `d_order_ticket_user_3` (
-  `id` bigint(20) NOT NULL COMMENT '主键id',
-  `order_number` bigint(20) NOT NULL COMMENT '订单编号',
-  `program_id` bigint(20) NOT NULL COMMENT '节目表id',
-  `user_id` bigint(20) NOT NULL COMMENT '用户id',
-  `ticket_user_id` bigint(20) NOT NULL COMMENT '购票人id',
-  `seat_id` bigint(20) NOT NULL COMMENT '座位id',
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `x_order_ticket_user_3` (
+  `id` bigint NOT NULL COMMENT '主键id',
+  `order_number` bigint NOT NULL COMMENT '订单编号',
+  `program_id` bigint NOT NULL COMMENT '节目表id',
+  `user_id` bigint NOT NULL COMMENT '用户id',
+  `ticket_user_id` bigint NOT NULL COMMENT '购票人id',
+  `seat_id` bigint NOT NULL COMMENT '座位id',
   `seat_info` varchar(100) DEFAULT NULL COMMENT '座位信息',
-  `ticket_category_id` bigint(20) DEFAULT NULL COMMENT '节目票档id',
+  `ticket_category_id` bigint DEFAULT NULL COMMENT '节目票档id',
   `order_price` decimal(10,0) DEFAULT NULL COMMENT '订单价格',
   `pay_order_price` decimal(10,0) DEFAULT NULL COMMENT '支付订单价格',
-  `pay_order_type` int(3) DEFAULT NULL COMMENT '支付订单方式',
-  `order_status` int(3) DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
+  `pay_order_type` int DEFAULT NULL COMMENT '支付订单方式',
+  `order_status` int DEFAULT '1' COMMENT '订单状态 1:未支付 2:已取消 3:已支付 4:已退单',
   `create_order_time` datetime DEFAULT NULL COMMENT '生成订单时间',
   `cancel_order_time` datetime DEFAULT NULL COMMENT '取消订单时间',
   `pay_order_time` datetime DEFAULT NULL COMMENT '支付订单时间',
@@ -332,14 +361,25 @@ CREATE TABLE `d_order_ticket_user_3` (
   KEY `d_order_ticket_user_user_id_IDX` (`user_id`) USING BTREE,
   KEY `d_order_ticket_user_ticket_user_id_IDX` (`ticket_user_id`) USING BTREE,
   KEY `d_order_ticket_user_create_order_time_IDX` (`create_order_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='购票人订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='购票人订单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `d_order_ticket_user_3`
+-- Dumping data for table `x_order_ticket_user_3`
 --
 
-LOCK TABLES `d_order_ticket_user_3` WRITE;
-/*!40000 ALTER TABLE `d_order_ticket_user_3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `d_order_ticket_user_3` ENABLE KEYS */;
+LOCK TABLES `x_order_ticket_user_3` WRITE;
+/*!40000 ALTER TABLE `x_order_ticket_user_3` DISABLE KEYS */;
+/*!40000 ALTER TABLE `x_order_ticket_user_3` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-01-03 16:02:07
