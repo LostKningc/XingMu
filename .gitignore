@@ -19,7 +19,7 @@ logs/
 !.mvn/wrapper/maven-wrapper.jar
 
 # IntelliJ IDEA
-.idea/
+.idea/*
 *.iws
 *.ipr
 out/
@@ -45,3 +45,7 @@ Thumbs.db
 *.swo
 /.idea/
 /.idea/*
+
+# Others
+alipay.yml
+.flattened-pom.xml

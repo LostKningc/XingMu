@@ -6,6 +6,8 @@ spring:
     allow-bean-definition-overriding: true
   application:
     name: xingmu-pay-service
+  config:
+    import: classpath:alipay.yml
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
     url: jdbc:shardingsphere:classpath:shardingsphere-pay.yaml
@@ -28,12 +30,3 @@ spring:
 feign:
   sentinel:
     enabled: true
-alipay:
-  alipay-public-key:
-  app-id:
-  content-key:
-  gateway-url:
-  merchant-private-key:
-  notify-url:
-  return-url:
-  seller-id:
